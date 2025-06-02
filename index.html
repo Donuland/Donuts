@@ -152,6 +152,42 @@
             font-size: 1.2em; 
             padding: 15px 30px; 
         }
+        /* Weather Styles */
+        .weather-section { 
+            background: #e8f4fd; 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin: 20px 0; 
+            border-left: 4px solid #3498db; 
+        }
+        .weather-display { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-bottom: 15px; 
+        }
+        .weather-loading { 
+            text-align: center; 
+            color: #6c757d; 
+            padding: 20px; 
+        }
+        .weather-days { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); 
+            gap: 10px; 
+            margin-top: 15px; 
+        }
+        .weather-day { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            text-align: center; 
+            border: 2px solid #ddd; 
+            transition: all 0.3s ease; 
+        }
+        .weather-day:hover { 
+            border-color: #3498db; 
+        }
         .message { 
             padding: 15px; 
             border-radius: 8px; 
@@ -248,7 +284,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="eventLocation">Město/Lokalita</label>
-                            <input type="text" id="eventLocation" placeholder="např. Praha, Brno...">
+                        <input type="text" id="eventLocation" placeholder="např. Praha, Brno, Hostinné..." oninput="loadWeather()">
                         </div>
                         <div class="form-group">
                             <label for="eventDate">Datum začátku akce</label>
@@ -258,7 +294,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="eventDuration">Délka akce (dny)</label>
-                            <select id="eventDuration">
+                            <select id="eventDuration" onchange="loadWeather()">
                                 <option value="1">1 den</option>
                                 <option value="2" selected>2 dny</option>
                                 <option value="3">3 dny</option>
@@ -268,8 +304,24 @@
                         </div>
                         <div class="form-group">
                             <label for="expectedVisitors">Očekávaná návštěvnost</label>
-                            <input type="number" id="expectedVisitors" value="5000" min="0">
+                            <input type="number" id="expectedVisitors" value="2000" min="0">
                         </div>
+                    <div class="form-group">
+                        <label for="eventEnvironment">Prostředí akce</label>
+                        <select id="eventEnvironment" onchange="handleEnvironmentChange()">
+                            <option value="outdoor">Venkovní akce</option>
+                            <option value="indoor">Vnitřní akce</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Weather Section -->
+                    <div id="weatherSection" class="weather-section">
+                        <h4>🌤️ Předpověď počasí na celou dobu akce</h4>
+                        <div id="weatherDisplay" class="weather-display">
+                            <div class="weather-loading">📍 Vyberte město, datum a délku akce pro načtení počasí</div>
+                        </div>
+                        <div id="weatherDays" class="weather-days"></div>
+                    </div>
                     </div>
                 </div>
 
@@ -338,11 +390,11 @@
                     <h3>⚙️ Nastavení aplikace</h3>
                     <div class="form-group">
                         <label for="defaultDonutPrice">Výchozí cena donutu (Kč)</label>
-                        <input type="number" id="defaultDonutPrice" value="45" min="0" step="5">
+                        <input type="number" id="defaultDonutPrice" value="110" min="0" step="5">
                     </div>
                     <div class="form-group">
                         <label for="defaultDonutCost">Výchozí náklady na donut (Kč)</label>
-                        <input type="number" id="defaultDonutCost" value="18" min="0" step="1">
+                        <input type="number" id="defaultDonutCost" value="32" min="0" step="1">
                     </div>
                     <button class="btn btn-primary" onclick="saveSettings()">💾 Uložit nastavení</button>
                 </div>
@@ -488,6 +540,182 @@
             
             showMessage('Aplikace byla úspěšně načtena', 'success');
         });
+        // Weather API functionality
+        const WEATHER_API_KEY = 'c2fb0e86623880dc86162892b0fd9c95'; // Nahraďte svým API klíčem
+        
+        async function loadWeather() {
+            const location = document.getElementById('eventLocation').value.trim();
+            const date = document.getElementById('eventDate').value;
+            const duration = document.getElementById('eventDuration').value;
+            const environment = document.getElementById('eventEnvironment').value;
+            
+            // Skryj weather pro vnitřní akce
+            if (environment === 'indoor') {
+                document.getElementById('weatherSection').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('weatherSection').style.display = 'block';
+            
+            if (!location || !date || !duration) {
+                document.getElementById('weatherDisplay').innerHTML = 
+                    '<div class="weather-loading">📍 Vyberte město, datum a délku akce pro načtení počasí</div>';
+                document.getElementById('weatherDays').innerHTML = '';
+                return;
+            }
+            
+            document.getElementById('weatherDisplay').innerHTML = 
+                '<div class="weather-loading">🔄 Načítám předpověď počasí...</div>';
+            
+            try {
+                const weatherData = await fetchWeatherForecast(location, date, parseInt(duration));
+                displayWeatherForecast(weatherData);
+            } catch (error) {
+                document.getElementById('weatherDisplay').innerHTML = 
+                    '<div class="weather-loading">❌ Nepodařilo se načíst počasí pro ' + location + '</div>';
+                console.error('Weather API error:', error);
+            }
+        }
+        
+        function handleEnvironmentChange() {
+            loadWeather();
+        }
+        
+        async function fetchWeatherForecast(location, startDate, days) {
+            // Získání souřadnic města
+            const geoResponse = await fetch(
+                `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)},CZ&limit=1&appid=${WEATHER_API_KEY}`
+            );
+            
+            if (!geoResponse.ok) {
+                throw new Error('Město nenalezeno');
+            }
+            
+            const geoData = await geoResponse.json();
+            if (geoData.length === 0) {
+                throw new Error('Město nenalezeno');
+            }
+            
+            const { lat, lon } = geoData[0];
+            
+            // Získání předpovědi počasí
+            const weatherResponse = await fetch(
+                `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric&lang=cz`
+            );
+            
+            if (!weatherResponse.ok) {
+                throw new Error('Chyba při načítání počasí');
+            }
+            
+            const weatherData = await weatherResponse.json();
+            
+            // Zpracování dat pro požadované dny
+            const startTimestamp = new Date(startDate).getTime();
+            const dailyForecasts = [];
+            
+            for (let i = 0; i < days; i++) {
+                const targetDate = new Date(startTimestamp + (i * 24 * 60 * 60 * 1000));
+                const dayForecast = processDayForecast(weatherData.list, targetDate);
+                dailyForecasts.push(dayForecast);
+            }
+            
+            return {
+                location: geoData[0].name,
+                days: dailyForecasts
+            };
+        }
+        
+        function processDayForecast(forecastList, targetDate) {
+            const targetDateStr = targetDate.toISOString().split('T')[0];
+            const dayForecasts = forecastList.filter(item => 
+                item.dt_txt.startsWith(targetDateStr)
+            );
+            
+            if (dayForecasts.length === 0) {
+                return {
+                    date: targetDate,
+                    temp_avg: 20,
+                    description: 'Není k dispozici',
+                    icon: '01d',
+                    rain_probability: 0,
+                    impact: 'neutral'
+                };
+            }
+            
+            const temps = dayForecasts.map(f => f.main.temp);
+            const temp_avg = temps.reduce((a, b) => a + b, 0) / temps.length;
+            
+            const rainForecasts = dayForecasts.filter(f => f.weather[0].main.includes('Rain'));
+            const rain_probability = (rainForecasts.length / dayForecasts.length) * 100;
+            
+            const mainWeather = dayForecasts[Math.floor(dayForecasts.length / 2)];
+            
+            return {
+                date: targetDate,
+                temp_avg: Math.round(temp_avg),
+                description: mainWeather.weather[0].description,
+                icon: mainWeather.weather[0].icon,
+                rain_probability: Math.round(rain_probability),
+                impact: calculateWeatherImpact(temp_avg, rain_probability, mainWeather.weather[0].main)
+            };
+        }
+        
+        function calculateWeatherImpact(temp, rainProb, weatherType) {
+            if (weatherType.includes('Rain') && rainProb > 70) return 'negative';
+            if (weatherType.includes('Storm')) return 'negative';
+            if (temp < 5 || temp > 35) return 'negative';
+            if (rainProb > 50) return 'warning';
+            if (temp < 10 || temp > 30) return 'warning';
+            return 'positive';
+        }
+        
+        function displayWeatherForecast(weatherData) {
+            const weatherDisplay = document.getElementById('weatherDisplay');
+            const weatherDays = document.getElementById('weatherDays');
+            
+            // Souhrnné informace
+            const avgTemp = Math.round(
+                weatherData.days.reduce((sum, day) => sum + day.temp_avg, 0) / weatherData.days.length
+            );
+            const maxRainProb = Math.max(...weatherData.days.map(day => day.rain_probability));
+            
+            weatherDisplay.innerHTML = `
+                <h5>📍 ${weatherData.location}</h5>
+                <p><strong>Průměrná teplota:</strong> ${avgTemp}°C</p>
+                <p><strong>Maximální pravděpodobnost deště:</strong> ${maxRainProb}%</p>
+                <p><strong>Doporučení:</strong> ${getWeatherRecommendation(weatherData.days)}</p>
+            `;
+            
+            // Denní předpovědi
+            weatherDays.innerHTML = weatherData.days.map(day => `
+                <div class="weather-day ${day.impact}">
+                    <div><strong>${formatDate(day.date)}</strong></div>
+                    <div>🌡️ ${day.temp_avg}°C</div>
+                    <div>☔ ${day.rain_probability}%</div>
+                    <div style="font-size: 0.9em; margin-top: 5px;">${day.description}</div>
+                </div>
+            `).join('');
+        }
+        
+        function getWeatherRecommendation(days) {
+            const negativedays = days.filter(d => d.impact === 'negative').length;
+            const warningDays = days.filter(d => d.impact === 'warning').length;
+            
+            if (negativedays > 0) {
+                return '⚠️ Připravte se na nepříznivé počasí - doporučujeme záložní plán';
+            } else if (warningDays > 0) {
+                return '🌤️ Částečně nepříznivé počasí - připravte vhodné oblečení';
+            } else {
+                return '✅ Počasí bude příznivé pro venkovní akci';
+            }
+        }
+        
+        function formatDate(date) {
+            return date.toLocaleDateString('cs-CZ', { 
+                day: 'numeric', 
+                month: 'short' 
+            });
+        }
     </script>
 </body>
 </html>
