@@ -236,6 +236,342 @@
             .form-row { 
                 grid-template-columns: 1fr; 
             } 
+            /* Weather Section Styles */
+        .weather-section {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3);
+        }
+
+        .weather-section h4 {
+            margin: 0 0 15px 0;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .weather-display {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .weather-display h5 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .weather-display p {
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+
+        .weather-loading {
+            text-align: center;
+            padding: 15px;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .weather-days {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .weather-day {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 120px;
+            flex: 1;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .weather-day:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .weather-day.positive {
+            border-left: 4px solid #00b894;
+        }
+
+        .weather-day.warning {
+            border-left: 4px solid #fdcb6e;
+        }
+
+        .weather-day.negative {
+            border-left: 4px solid #e17055;
+        }
+
+        .weather-day div {
+            margin: 3px 0;
+            font-size: 0.9em;
+        }
+
+        .weather-day strong {
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .weather-days {
+                flex-direction: column;
+            }
+            
+            .weather-day {
+                min-width: auto;
+            }
+        }
+        }
+        /* Sales Prediction Section Styles */
+        .prediction-section {
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(162, 155, 254, 0.3);
+        }
+
+        .prediction-section h4 {
+            margin: 0 0 20px 0;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .business-model-selection {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .radio-group label {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .radio-group label:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .radio-group input[type="radio"] {
+            margin-right: 8px;
+        }
+
+        .financial-params {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .param-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .param-row label {
+            flex: 1;
+            font-size: 0.95em;
+        }
+
+        .param-row input {
+            width: 100px;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .prediction-results {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .prediction-loading {
+            text-align: center;
+            padding: 15px;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .prediction-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .prediction-metric {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .prediction-metric .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .prediction-metric .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .confidence-bar {
+            background: rgba(255, 255, 255, 0.3);
+            height: 8px;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .confidence-high { background: #00b894; }
+        .confidence-medium { background: #fdcb6e; }
+        .confidence-low { background: #e17055; }
+
+        .historical-data {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .historical-data h5 {
+            margin: 0 0 15px 0;
+            font-size: 1.1em;
+        }
+
+        .historical-event {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .historical-event .event-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .historical-event .event-details {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .manual-override {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .manual-override h5 {
+            margin: 0 0 15px 0;
+            font-size: 1.1em;
+        }
+
+        .override-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .override-controls input {
+            width: 120px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .btn-override {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-override:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .radio-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .param-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .param-row input {
+                width: 100%;
+                max-width: 200px;
+            }
+            
+            .override-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .override-controls input {
+                width: 100%;
+                max-width: 200px;
+            }
         }
     </style>
 </head>
@@ -324,7 +660,62 @@
                     </div>
                     </div>
                 </div>
+<!-- Sales Prediction Section -->
+            <div id="predictionSection" class="prediction-section" style="display: none;">
+                <h4>📊 Predikce prodeje a rentabilita</h4>
+                
+                <!-- Business Model Selection -->
+                <div class="business-model-selection">
+                    <label><strong>Model podnikání:</strong></label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="businessModel" value="owner" checked> 👨‍💼 Majitel (brigádníci)</label>
+                        <label><input type="radio" name="businessModel" value="franchisee"> 🤝 Franšízant</label>
+                        <label><input type="radio" name="businessModel" value="employee"> 👨‍💻 Zaměstnanec</label>
+                    </div>
+                </div>
 
+                <!-- Financial Parameters -->
+                <div class="financial-params">
+                    <div class="param-row">
+                        <label>Náklady na donut (Kč):</label>
+                        <input type="number" id="donutCost" value="15" min="0" step="0.5">
+                    </div>
+                    <div class="param-row">
+                        <label>Prodejní cena (Kč):</label>
+                        <input type="number" id="sellingPrice" value="45" min="0" step="0.5">
+                    </div>
+                    <div class="param-row">
+                        <label>Náklady na dopravu (Kč):</label>
+                        <input type="number" id="transportCost" value="500" min="0" step="50">
+                    </div>
+                    <div class="param-row">
+                        <label>Ostatní náklady (Kč):</label>
+                        <input type="number" id="otherCosts" value="200" min="0" step="50">
+                    </div>
+                </div>
+
+                <!-- Prediction Results -->
+                <div id="predictionResults" class="prediction-results">
+                    <div class="prediction-loading">📍 Vyplňte všechny údaje pro načtení predikce</div>
+                </div>
+
+                <!-- Historical Data Display -->
+                <div id="historicalData" class="historical-data" style="display: none;">
+                    <h5>📋 Podobné akce z historie</h5>
+                    <div id="historicalList"></div>
+                </div>
+
+                <!-- Manual Override -->
+                <div class="manual-override" style="display: none;" id="manualOverride">
+                    <h5>✏️ Upravit predikci</h5>
+                    <div class="override-controls">
+                        <label>Váš odhad prodeje (ks):</label>
+                        <input type="number" id="manualPrediction" min="0" step="1">
+                        <button onclick="applyManualOverride()" class="btn-override">Použít úpravu</button>
+                    </div>
+                </div>
+            </div>
+                
                 <div class="form-section">
                     <h3>💰 Finanční parametry</h3>
                     <div class="form-row">
@@ -715,6 +1106,556 @@
                 day: 'numeric', 
                 month: 'short' 
             });
+        }
+        // Google Sheets API and Sales Prediction System
+        let historicalData = [];
+        let lastPrediction = null;
+
+        // Initialize prediction system
+        async function initializePredictionSystem() {
+            try {
+                await loadHistoricalData();
+                setupPredictionListeners();
+            } catch (error) {
+                console.error('Failed to initialize prediction system:', error);
+            }
+        }
+
+        // Load historical data from Google Sheets
+        async function loadHistoricalData() {
+            const SHEET_ID = '1LclCz9hb0hlb1D92OyVqk6Cbam7PRK6KgAzGgiGs6iE';
+            const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+            
+            try {
+                const response = await fetch(API_URL);
+                const csvText = await response.text();
+                historicalData = parseCSVData(csvText);
+                console.log('Historical data loaded:', historicalData.length, 'events');
+            } catch (error) {
+                console.error('Error loading historical data:', error);
+                showMessage('Chyba při načítání historických dat', 'error');
+            }
+        }
+
+        // Parse CSV data from Google Sheets
+        function parseCSVData(csvText) {
+            const lines = csvText.split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim() === '') continue;
+                
+                const values = parseCSVLine(lines[i]);
+                if (values.length < headers.length) continue;
+
+                const event = {};
+                headers.forEach((header, index) => {
+                    if (values[index]) {
+                        event[header] = values[index].replace(/"/g, '').trim();
+                    }
+                });
+
+                // Only include events with actual sales data
+                if (event['realně prodáno'] && !isNaN(parseInt(event['realně prodáno']))) {
+                    event.actualSales = parseInt(event['realně prodáno']);
+                    event.estimatedSales = parseInt(event['odhad prodeje']) || 0;
+                    event.attendance = parseInt(event['návstěvnost']) || 0;
+                    event.rating = parseInt(event['hodnocení akce 1-5']) || 0;
+                    event.competition = parseInt(event['konkurence']) || 1;
+                    event.location = event['Lokalita'] || '';
+                    event.eventName = event['Název akce'] || '';
+                    event.category = event['kategorie'] || '';
+                    event.weather = event['počasí'] || '';
+                    event.rentalCost = parseFloat(event['Cena nájmu']) || 0;
+                    
+                    data.push(event);
+                }
+            }
+
+            return data;
+        }
+
+        // Parse CSV line handling quotes and commas
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current);
+            return result;
+        }
+        // Setup event listeners for prediction inputs
+        function setupPredictionListeners() {
+            const inputs = ['eventName', 'eventLocation', 'eventDate', 'eventDuration', 'eventEnvironment'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', handlePredictionInputChange);
+                    element.addEventListener('input', handlePredictionInputChange);
+                }
+            });
+
+            // Business model and financial parameter listeners
+            document.querySelectorAll('input[name="businessModel"]').forEach(radio => {
+                radio.addEventListener('change', calculatePrediction);
+            });
+
+            ['donutCost', 'sellingPrice', 'transportCost', 'otherCosts'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', calculatePrediction);
+                }
+            });
+        }
+
+        function handlePredictionInputChange() {
+            const eventEnvironment = document.getElementById('eventEnvironment').value;
+            
+            // Show/hide prediction section based on form completion
+            if (eventEnvironment && eventEnvironment !== '') {
+                document.getElementById('predictionSection').style.display = 'block';
+                calculatePrediction();
+            } else {
+                document.getElementById('predictionSection').style.display = 'none';
+            }
+        }
+
+        // Main prediction calculation function
+        async function calculatePrediction() {
+            const eventName = document.getElementById('eventName').value.trim();
+            const location = document.getElementById('eventLocation').value.trim();
+            const date = document.getElementById('eventDate').value;
+            const duration = parseInt(document.getElementById('eventDuration').value) || 1;
+            
+            if (!eventName || !location || !date) {
+                document.getElementById('predictionResults').innerHTML = 
+                    '<div class="prediction-loading">📍 Vyplňte název akce, město a datum pro načtení predikce</div>';
+                return;
+            }
+
+            document.getElementById('predictionResults').innerHTML = 
+                '<div class="prediction-loading">🔄 Počítám predikci prodeje...</div>';
+
+            try {
+                // Get weather data if available
+                let weatherMultiplier = 1.0;
+                const weatherData = await getWeatherForPrediction(location, date, duration);
+                if (weatherData) {
+                    weatherMultiplier = calculateWeatherMultiplier(weatherData);
+                }
+
+                // Find similar events and calculate prediction
+                const similarEvents = findSimilarEvents(eventName, location);
+                const prediction = calculateSalesPrediction(similarEvents, weatherMultiplier);
+                
+                // Calculate profitability
+                const profitability = calculateProfitability(prediction);
+                
+                // Display results
+                displayPredictionResults(prediction, profitability, similarEvents);
+                
+                lastPrediction = prediction;
+                
+            } catch (error) {
+                console.error('Prediction calculation error:', error);
+                document.getElementById('predictionResults').innerHTML = 
+                    '<div class="prediction-loading">❌ Chyba při výpočtu predikce</div>';
+            }
+        }
+
+        // Find similar events from historical data
+        function findSimilarEvents(eventName, location) {
+            const similar = [];
+            
+            // Exact matches (same event name and location)
+            const exactMatches = historicalData.filter(event => 
+                event.eventName.toLowerCase().includes(eventName.toLowerCase()) && 
+                event.location.toLowerCase().includes(location.toLowerCase())
+            );
+            
+            // Category matches (same category, different location)
+            const eventCategory = getEventCategory(eventName);
+            const categoryMatches = historicalData.filter(event => 
+                event.category.toLowerCase() === eventCategory.toLowerCase() &&
+                !exactMatches.includes(event)
+            );
+            
+            // Location matches (same location, different event)
+            const locationMatches = historicalData.filter(event => 
+                event.location.toLowerCase().includes(location.toLowerCase()) &&
+                !exactMatches.includes(event) &&
+                !categoryMatches.includes(event)
+            );
+
+            // Add matches with weight
+            exactMatches.forEach(event => similar.push({ ...event, weight: 0.9, matchType: 'exact' }));
+            categoryMatches.slice(0, 5).forEach(event => similar.push({ ...event, weight: 0.7, matchType: 'category' }));
+            locationMatches.slice(0, 3).forEach(event => similar.push({ ...event, weight: 0.5, matchType: 'location' }));
+
+            return similar.sort((a, b) => b.weight - a.weight);
+        }
+
+        // Determine event category from name
+        function getEventCategory(eventName) {
+            const name = eventName.toLowerCase();
+            
+            if (name.includes('cokofest') || name.includes('čokofest')) return 'veletrh';
+            if (name.includes('street food') || name.includes('food')) return 'food festival';
+            if (name.includes('run') || name.includes('běh')) return 'Sportovní akce (dospělí)';
+            if (name.includes('majáles') || name.includes('koncert')) return 'koncert';
+            if (name.includes('fest') || name.includes('festival')) return 'food festival';
+            
+            return 'ostatní';
+        }
+        // Calculate sales prediction based on similar events
+        function calculateSalesPrediction(similarEvents, weatherMultiplier = 1.0) {
+            if (similarEvents.length === 0) {
+                return {
+                    predictedSales: 300,
+                    confidence: 0.3,
+                    factors: ['Žádná historická data - používám průměrný odhad'],
+                    basePrediction: 300
+                };
+            }
+
+            let weightedSales = 0;
+            let totalWeight = 0;
+            const factors = [];
+
+            similarEvents.forEach(event => {
+                let adjustedSales = event.actualSales;
+                
+                // Adjust for rating
+                if (event.rating > 0) {
+                    const ratingMultiplier = 0.6 + (event.rating * 0.1); // 0.7 to 1.1
+                    adjustedSales *= ratingMultiplier;
+                }
+                
+                // Adjust for competition
+                const competitionMultiplier = event.competition === 1 ? 1.1 : (event.competition === 3 ? 0.8 : 0.95);
+                adjustedSales *= competitionMultiplier;
+                
+                weightedSales += adjustedSales * event.weight;
+                totalWeight += event.weight;
+                
+                factors.push(`${event.eventName} (${event.location}): ${event.actualSales} ks, hodnocení ${event.rating}⭐`);
+            });
+
+            const basePrediction = Math.round(weightedSales / totalWeight);
+            const finalPrediction = Math.round(basePrediction * weatherMultiplier);
+            
+            // Calculate confidence based on number and quality of matches
+            let confidence = Math.min(0.9, totalWeight / 2);
+            if (similarEvents.some(e => e.matchType === 'exact')) confidence = Math.max(confidence, 0.8);
+            
+            factors.push(`Počasí faktor: ${(weatherMultiplier * 100).toFixed(0)}%`);
+
+            return {
+                predictedSales: finalPrediction,
+                confidence: confidence,
+                factors: factors,
+                basePrediction: basePrediction,
+                weatherMultiplier: weatherMultiplier
+            };
+        }
+
+        // Get weather data for prediction
+        async function getWeatherForPrediction(location, date, duration) {
+            try {
+                if (!WEATHER_API_KEY) return null;
+                
+                const targetDate = new Date(date);
+                const today = new Date();
+                const daysDiff = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysDiff > 5) return null; // Weather forecast not reliable beyond 5 days
+                
+                const weatherData = await fetchWeatherForecast(location, date, duration);
+                return weatherData;
+            } catch (error) {
+                console.log('Weather data not available for prediction');
+                return null;
+            }
+        }
+
+        // Calculate weather multiplier for sales
+        function calculateWeatherMultiplier(weatherData) {
+            if (!weatherData || !weatherData.days) return 1.0;
+            
+            let totalMultiplier = 0;
+            
+            weatherData.days.forEach(day => {
+                let dayMultiplier = 1.0;
+                
+                // Temperature impact
+                const temp = day.temp_avg;
+                if (temp >= 15 && temp <= 25) {
+                    dayMultiplier = 1.0; // Ideal temperature
+                } else if (temp >= 10 && temp < 15) {
+                    dayMultiplier = 0.85; // Bit cold
+                } else if (temp > 25 && temp <= 30) {
+                    dayMultiplier = 0.9; // Getting warm
+                } else if (temp > 30) {
+                    dayMultiplier = 0.7; // Too hot, donuts melt
+                } else {
+                    dayMultiplier = 0.75; // Too cold
+                }
+                
+                // Rain impact
+                if (day.rain_probability > 70) {
+                    dayMultiplier *= 0.6; // Heavy rain
+                } else if (day.rain_probability > 40) {
+                    dayMultiplier *= 0.8; // Some rain
+                }
+                
+                totalMultiplier += dayMultiplier;
+            });
+            
+            return totalMultiplier / weatherData.days.length;
+        }
+
+        // Calculate profitability based on business model
+        function calculateProfitability(prediction) {
+            const businessModel = document.querySelector('input[name="businessModel"]:checked').value;
+            const donutCost = parseFloat(document.getElementById('donutCost').value) || 15;
+            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 45;
+            const transportCost = parseFloat(document.getElementById('transportCost').value) || 500;
+            const otherCosts = parseFloat(document.getElementById('otherCosts').value) || 200;
+            const duration = parseInt(document.getElementById('eventDuration').value) || 1;
+            
+            const predictedSales = prediction.predictedSales;
+            const revenue = predictedSales * sellingPrice;
+            const productCosts = predictedSales * donutCost;
+            
+            let laborCosts = 0;
+            let franchiseeRevenue = 0;
+            let employeeCommission = 0;
+            
+            if (businessModel === 'owner') {
+                // Owner with temp workers: 150 CZK/hour, 10 hours/day
+                laborCosts = 2 * 150 * 10 * duration; // 2 workers
+            } else if (businessModel === 'franchisee') {
+                // Franchisee pays ~50 CZK per donut
+                franchiseeRevenue = predictedSales * 50;
+                return {
+                    businessModel: 'franchisee',
+                    revenue: revenue,
+                    costs: franchiseeRevenue + transportCost + otherCosts,
+                    profit: revenue - franchiseeRevenue - transportCost - otherCosts,
+                    profitMargin: ((revenue - franchiseeRevenue - transportCost - otherCosts) / revenue * 100).toFixed(1),
+                    details: {
+                        revenue: revenue,
+                        franchiseeCost: franchiseeRevenue,
+                        transport: transportCost,
+                        other: otherCosts
+                    }
+                };
+            } else if (businessModel === 'employee') {
+                // Employee: 150 CZK/hour + 5% commission
+                laborCosts = 150 * 10 * duration; // 1 employee
+                employeeCommission = revenue * 0.05;
+                laborCosts += employeeCommission;
+            }
+            
+            const totalCosts = productCosts + laborCosts + transportCost + otherCosts;
+            const profit = revenue - totalCosts;
+            const profitMargin = revenue > 0 ? (profit / revenue * 100).toFixed(1) : 0;
+            
+            return {
+                businessModel: businessModel,
+                revenue: revenue,
+                costs: totalCosts,
+                profit: profit,
+                profitMargin: profitMargin,
+                details: {
+                    revenue: revenue,
+                    productCosts: productCosts,
+                    laborCosts: laborCosts,
+                    transport: transportCost,
+                    other: otherCosts,
+                    employeeCommission: employeeCommission || 0
+                }
+            };
+        }
+        // Display prediction results
+        function displayPredictionResults(prediction, profitability, similarEvents) {
+            const resultsDiv = document.getElementById('predictionResults');
+            
+            const confidenceLevel = prediction.confidence > 0.8 ? 'high' : 
+                                  prediction.confidence > 0.6 ? 'medium' : 'low';
+            const confidenceText = prediction.confidence > 0.8 ? 'Vysoká' : 
+                                 prediction.confidence > 0.6 ? 'Střední' : 'Nízká';
+            
+            resultsDiv.innerHTML = `
+                <div class="prediction-summary">
+                    <div class="prediction-metric">
+                        <div class="metric-value">${prediction.predictedSales}</div>
+                        <div class="metric-label">Predikovaný prodej (ks)</div>
+                    </div>
+                    <div class="prediction-metric">
+                        <div class="metric-value">${Math.round(profitability.revenue).toLocaleString()} Kč</div>
+                        <div class="metric-label">Očekávaný obrat</div>
+                    </div>
+                    <div class="prediction-metric">
+                        <div class="metric-value" style="color: ${profitability.profit > 0 ? '#00b894' : '#e17055'}">${Math.round(profitability.profit).toLocaleString()} Kč</div>
+                        <div class="metric-label">Zisk (${profitability.profitMargin}%)</div>
+                    </div>
+                    <div class="prediction-metric">
+                        <div class="metric-value">${confidenceText}</div>
+                        <div class="metric-label">Spolehlivost predikce</div>
+                    </div>
+                </div>
+                
+                <div class="confidence-bar">
+                    <div class="confidence-fill confidence-${confidenceLevel}" style="width: ${prediction.confidence * 100}%"></div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <strong>Faktory ovlivňující predikci:</strong>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        ${prediction.factors.map(factor => `<li style="margin: 5px 0;">${factor}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <strong>Rozpis nákladů (${profitability.businessModel}):</strong>
+                    <div style="margin: 10px 0;">
+                        ${getProfitabilityBreakdown(profitability)}
+                    </div>
+                </div>
+            `;
+            
+            // Show historical data
+            if (similarEvents.length > 0) {
+                displayHistoricalData(similarEvents);
+            }
+            
+            // Show manual override option
+            document.getElementById('manualOverride').style.display = 'block';
+            document.getElementById('manualPrediction').value = prediction.predictedSales;
+        }
+
+        function getProfitabilityBreakdown(profitability) {
+            const details = profitability.details;
+            let breakdown = `• Obrat: ${Math.round(details.revenue).toLocaleString()} Kč<br>`;
+            
+            if (profitability.businessModel === 'franchisee') {
+                breakdown += `• Náklady na donuty (franšíza): ${Math.round(details.franchiseeCost).toLocaleString()} Kč<br>`;
+            } else {
+                breakdown += `• Náklady na donuty: ${Math.round(details.productCosts).toLocaleString()} Kč<br>`;
+                breakdown += `• Mzdové náklady: ${Math.round(details.laborCosts).toLocaleString()} Kč<br>`;
+                if (details.employeeCommission > 0) {
+                    breakdown += `• Provize zaměstnance (5%): ${Math.round(details.employeeCommission).toLocaleString()} Kč<br>`;
+                }
+            }
+            
+            breakdown += `• Doprava: ${Math.round(details.transport).toLocaleString()} Kč<br>`;
+            breakdown += `• Ostatní náklady: ${Math.round(details.other).toLocaleString()} Kč<br>`;
+            breakdown += `<strong>• Celkový zisk: ${Math.round(profitability.profit).toLocaleString()} Kč</strong>`;
+            
+            return breakdown;
+        }
+
+        function displayHistoricalData(similarEvents) {
+            const historicalDiv = document.getElementById('historicalData');
+            const historicalList = document.getElementById('historicalList');
+            
+            historicalDiv.style.display = 'block';
+            
+            const topEvents = similarEvents.slice(0, 5);
+            historicalList.innerHTML = topEvents.map(event => `
+                <div class="historical-event">
+                    <div class="event-header">
+                        ${event.eventName} - ${event.location} 
+                        <span style="float: right;">${event.matchType === 'exact' ? '🎯' : event.matchType === 'category' ? '📂' : '📍'}</span>
+                    </div>
+                    <div class="event-details">
+                        Prodáno: ${event.actualSales} ks | Hodnocení: ${event.rating}⭐ | 
+                        Konkurence: ${event.competition === 1 ? 'nízká' : event.competition === 3 ? 'vysoká' : 'střední'} | 
+                        Váha: ${Math.round(event.weight * 100)}%
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function applyManualOverride() {
+            const manualValue = parseInt(document.getElementById('manualPrediction').value);
+            if (!manualValue || manualValue < 0) {
+                showMessage('Zadejte platný odhad prodeje', 'error');
+                return;
+            }
+            
+            // Update prediction with manual value
+            if (lastPrediction) {
+                lastPrediction.predictedSales = manualValue;
+                lastPrediction.confidence = Math.max(0.9, lastPrediction.confidence);
+                lastPrediction.factors.push(`✏️ Manuální úprava: ${manualValue} ks`);
+                
+                // Recalculate profitability
+                const profitability = calculateProfitability(lastPrediction);
+                
+                // Find similar events again for context
+                const eventName = document.getElementById('eventName').value.trim();
+                const location = document.getElementById('eventLocation').value.trim();
+                const similarEvents = findSimilarEvents(eventName, location);
+                
+                // Display updated results
+                displayPredictionResults(lastPrediction, profitability, similarEvents);
+                
+                showMessage('Predikce byla upravena', 'success');
+                
+                // Store learning data for future improvements
+                storeLearningData(eventName, location, manualValue, lastPrediction.basePrediction);
+            }
+        }
+
+        function storeLearningData(eventName, location, manualValue, originalPrediction) {
+            // Store learning data in localStorage for future algorithm improvements
+            const learningData = JSON.parse(localStorage.getItem('predictionLearning') || '[]');
+            learningData.push({
+                eventName: eventName,
+                location: location,
+                manualOverride: manualValue,
+                originalPrediction: originalPrediction,
+                date: new Date().toISOString(),
+                difference: manualValue - originalPrediction
+            });
+            
+            // Keep only last 100 learning entries
+            if (learningData.length > 100) {
+                learningData.splice(0, learningData.length - 100);
+            }
+            
+            localStorage.setItem('predictionLearning', JSON.stringify(learningData));
+        }
+
+        // Update the existing document ready function
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            initializePredictionSystem();
+            
+            // Auto-refresh historical data every 5 minutes
+            setInterval(loadHistoricalData, 5 * 60 * 1000);
+        });
+
+        // Update the existing handleEnvironmentChange function
+        function handleEnvironmentChange() {
+            loadWeather();
+            handlePredictionInputChange(); // Also trigger prediction
         }
     </script>
 </body>
