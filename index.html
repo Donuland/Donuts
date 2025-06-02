@@ -424,19 +424,12 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="eventLocation">Město/Lokalita</label>
-                                <select id="eventLocation" onchange="findSimilarEvents()">
-                                    <option value="">Vyberte město</option>
-                                    <option value="Praha">Praha</option>
-                                    <option value="Brno">Brno</option>
-                                    <option value="Ostrava">Ostrava</option>
-                                    <option value="Plzeň">Plzeň</option>
-                                    <option value="České Budějovice">České Budějovice</option>
-                                    <option value="Hradec Králové">Hradec Králové</option>
-                                    <option value="Liberec">Liberec</option>
-                                    <option value="Pardubice">Pardubice</option>
-                                    <option value="Olomouc">Olomouc</option>
-                                    <option value="jiné">Jiné město</option>
-                                </select>
+                                <input type="text" 
+                                       id="eventLocation" 
+                                       placeholder="např. Praha, Brno, Ostrava..." 
+                                       oninput="findSimilarEvents(); showLocationSuggestions()"
+                                       autocomplete="off">
+                                <div id="locationSuggestions" class="location-suggestions" style="display: none;"></div>
                             </div>
                             
                             <div class="form-group">
@@ -676,8 +669,96 @@
             { date: "2025-04-18", location: "Hradec Králové", eventName: "Majáles", category: "koncert", sold: 330, weather: "polojasno", visitors: 20000, staff: 3, competition: 0, rating: 2 },
             { date: "2025-04-26", location: "Praha", eventName: "Majáles", category: "koncert", sold: 363, weather: "polojasno", visitors: 0, staff: 2, competition: 3, rating: 2 },
             { date: "2025-05-03", location: "Ostrava", eventName: "Majáles", category: "koncert", sold: 406, weather: "", visitors: 0, staff: 2, competition: 0, rating: 0 },
-            { date: "2025-05-10", location: "Brno", eventName: "Majáles", category: "koncert", sold: 252, weather: "", visitors: 0, staff: 2, competition: 0, rating: 0 }
+            { date: "2025-05-10", location: "Brno", eventName: "Majáles", category: "koncert", sold: 252, weather: "", visitors: 0, staff: 2, competition: 0, rating: 0 },
+            { date: "2025-05-03", location: "Teplice", eventName: "Food Day Festival", category: "food festival", sold: 502, weather: "slunečno", visitors: 5000, staff: 2, competition: 2, rating: 5 },
+            { date: "2025-05-17", location: "Kutná Hora", eventName: "Street Food Piknik", category: "food festival", sold: 215, weather: "polojasno", visitors: 2000, staff: 2, competition: 2, rating: 3 },
+            { date: "2025-05-24", location: "České Budějovice", eventName: "Street Food Festival", category: "food festival", sold: 284, weather: "", visitors: 0, staff: 2, competition: 0, rating: 0 },
+            { date: "2025-05-24", location: "Cheb", eventName: "Delikatesy Festival", category: "food festival", sold: 338, weather: "", visitors: 0, staff: 2, competition: 0, rating: 0 },
+            { date: "2025-05-24", location: "Mnichovo Hradiště", eventName: "Food Day Festival", category: "food festival", sold: 943, weather: "", visitors: 0, staff: 2, competition: 0, rating: 0 },
+            { date: "2025-05-31", location: "Čáslav", eventName: "Čáslavské slavnosti", category: "kulturní akce (rodinná)", sold: 400, weather: "", visitors: 0, staff: 2, competition: 0, rating: 0 },
+            { date: "2025-05-31", location: "Jindřichův Hradec", eventName: "Food Day Festival", category: "food festival", sold: 600, weather: "", visitors: 0, staff: 2, competition: 0, rating: 0 },
+            { date: "2025-06-07", location: "Rokycany", eventName: "Pivní slavnosti", category: "food festival", sold: 400, weather: "", visitors: 0, staff: 0, competition: 0, rating: 0 },
+            { date: "2025-06-07", location: "Třeboň", eventName: "Street Food Festival", category: "food festival", sold: 500, weather: "", visitors: 0, staff: 0, competition: 0, rating: 0 }
         ];
+
+        // Seznam českých měst pro našeptávač
+        const czechCities = [
+            "Praha", "Brno", "Ostrava", "Plzeň", "Liberec", "Olomouc", "Ústí nad Labem", "České Budějovice",
+            "Hradec Králové", "Pardubice", "Havířov", "Zlín", "Most", "Opava", "Frýdek-Místek", "Karviná",
+            "Jihlava", "Teplice", "Děčín", "Karlovy Vary", "Jablonec nad Nisou", "Mladá Boleslav", "Prostějov",
+            "Přerov", "Chomutov", "Třebíč", "Tabor", "Znojmo", "Příbram", "Cheb", "Trutnov", "Kladno",
+            "Česká Lípa", "Třinec", "Tábor", "Kutná Hora", "Mariánské Lázně", "Vodňany", "Planá",
+            "Teplice", "Mnichovo Hradiště", "Čáslav", "Jindřichův Hradec", "Rokycany", "Třeboň",
+            "Poděbrady", "Holešov", "Vsetín", "Pelhřimov", "Jaroměř", "Nymburk", "Milovice", "Kostelec nad Černými Lesy",
+            "Velké Popovice", "Lysá nad Labem", "Kroměříž", "Humpolec", "Sázava", "Přeštice", "Valtice",
+            "Kralupy nad Vltavou", "Kunětická Hora", "Znojmo", "Ostrov", "Zbraslav", "Újezd nad Lesy"
+        ];
+        
+        // Našeptávač měst
+        function showLocationSuggestions() {
+            try {
+                const input = document.getElementById('eventLocation');
+                const value = input.value.toLowerCase().trim();
+                const suggestionsDiv = document.getElementById('locationSuggestions');
+                
+                if (value.length < 2) {
+                    suggestionsDiv.style.display = 'none';
+                    return;
+                }
+                
+                // Najít historická města + česká města
+                const historicalCities = [...new Set(historicalData.map(event => event.location))];
+                const allCities = [...new Set([...historicalCities, ...czechCities])];
+                
+                const filteredCities = allCities
+                    .filter(city => city.toLowerCase().includes(value))
+                    .slice(0, 8) // Omezit na 8 návrhů
+                    .sort();
+                
+                if (filteredCities.length === 0) {
+                    suggestionsDiv.style.display = 'none';
+                    return;
+                }
+                
+                suggestionsDiv.innerHTML = filteredCities
+                    .map(city => {
+                        const isHistorical = historicalCities.includes(city);
+                        return `
+                            <div class="suggestion-item" onclick="selectLocation('${city}')">
+                                ${city}
+                                ${isHistorical ? '<small style="color: #27ae60; margin-left: 10px;">📊 máme data</small>' : ''}
+                            </div>
+                        `;
+                    })
+                    .join('');
+                
+                suggestionsDiv.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Chyba při zobrazení návrhů měst:', error);
+            }
+        }
+        
+        // Výběr města z našeptávače
+        function selectLocation(city) {
+            try {
+                document.getElementById('eventLocation').value = city;
+                document.getElementById('locationSuggestions').style.display = 'none';
+                findSimilarEvents();
+            } catch (error) {
+                console.error('Chyba při výběru města:', error);
+            }
+        }
+        
+        // Skrytí našeptávače při kliknutí mimo
+        document.addEventListener('click', function(event) {
+            const suggestionsDiv = document.getElementById('locationSuggestions');
+            const input = document.getElementById('eventLocation');
+            
+            if (event.target !== input && !suggestionsDiv.contains(event.target)) {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
 
         // Inicializace aplikace
         document.addEventListener('DOMContentLoaded', function() {
