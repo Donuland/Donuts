@@ -130,6 +130,7 @@
         
         .form-group {
             margin-bottom: 20px;
+            position: relative;
         }
         
         .form-group label {
@@ -506,7 +507,7 @@
                         </div>
                         
                         <div class="form-row">
-                        <div class="form-group">
+                            <div class="form-group">
                                 <label for="eventLocation">Město/Lokalita</label>
                                 <input type="text" 
                                        id="eventLocation" 
@@ -518,7 +519,7 @@
                             
                             <div class="form-group">
                                 <label for="eventDate">Datum akce</label>
-                                <input type="date" id="eventDate" onchange="findSimilarEvents()">
+                                <input type="date" id="eventDate" onchange="findSimilarEvents(); loadWeatherForecast()">
                             </div>
                         </div>
                         
@@ -541,14 +542,24 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="weather">Počasí</label>
-                            <select id="weather">
-                                <option value="slunečno">☀️ Slunečno</option>
-                                <option value="polojasno" selected>⛅ Polojasno</option>
-                                <option value="oblačno">☁️ Oblačno</option>
-                                <option value="přeháňky">🌦️ Přeháňky</option>
-                                <option value="déšt">🌧️ Déšť</option>
+                            <label for="eventEnvironment">Prostředí akce</label>
+                            <select id="eventEnvironment" onchange="handleEnvironmentChange()">
+                                <option value="outdoor">Venkovní akce</option>
+                                <option value="indoor">Vnitřní akce</option>
                             </select>
+                        </div>
+                        
+                        <!-- Weather Section -->
+                        <div id="weatherSection" class="weather-section">
+                            <h4>🌤️ Předpověď počasí</h4>
+                            <div id="weatherDisplay" class="weather-display">
+                                <div class="weather-loading">
+                                    <div>📍 Vyberte město a datum pro načtení počasí</div>
+                                </div>
+                            </div>
+                            <div id="weatherDays" class="weather-days" style="display: none;">
+                                <!-- Weather forecast will be populated here -->
+                            </div>
                         </div>
                     </div>
                     
@@ -741,6 +752,7 @@
         // Globální proměnné
         let historicalData = [];
         let currentPrediction = null;
+        let weatherData = null;
 
         // Simulovaná historická data na základě vašeho Google Sheets
         const mockHistoricalData = [
@@ -777,6 +789,9 @@
             "Velké Popovice", "Lysá nad Labem", "Kroměříž", "Humpolec", "Sázava", "Přeštice", "Valtice",
             "Kralupy nad Vltavou", "Kunětická Hora", "Znojmo", "Ostrov", "Zbraslav", "Újezd nad Lesy"
         ];
+        
+        // Weather API konfigurace
+        const WEATHER_API_KEY = 'c2fb0e86623880dc86162892b0fd9c95';
         
         // Našeptávač měst
         function showLocationSuggestions() {
@@ -829,6 +844,7 @@
                 document.getElementById('eventLocation').value = city;
                 document.getElementById('locationSuggestions').style.display = 'none';
                 findSimilarEvents();
+                loadWeatherForecast();
             } catch (error) {
                 console.error('Chyba při výběru města:', error);
             }
@@ -853,6 +869,7 @@
                 
                 loadSettings();
                 loadHistoricalData();
+                handleEnvironmentChange();
             } catch (error) {
                 console.error('Chyba při inicializaci:', error);
                 showMessage('Chyba při načítání aplikace', 'error');
@@ -932,6 +949,166 @@
             }
         }
 
+        // Weather funkce
+        function handleEnvironmentChange() {
+            const environment = document.getElementById('eventEnvironment').value;
+            const weatherSection = document.getElementById('weatherSection');
+            
+            if (environment === 'outdoor') {
+                weatherSection.style.display = 'block';
+                loadWeatherForecast();
+            } else {
+                weatherSection.style.display = 'none';
+                weatherData = null;
+            }
+        }
+        
+        async function loadWeatherForecast() {
+            const location = document.getElementById('eventLocation').value.trim();
+            const eventDate = document.getElementById('eventDate').value;
+            const environment = document.getElementById('eventEnvironment').value;
+            
+            if (!location || !eventDate || environment === 'indoor') {
+                return;
+            }
+            
+            const weatherDisplay = document.getElementById('weatherDisplay');
+            weatherDisplay.innerHTML = `
+                <div class="weather-loading">
+                    <div>🔄 Načítání předpovědi počasí pro ${location}...</div>
+                </div>
+            `;
+            
+            try {
+                // Získat koordináty města
+                const geoResponse = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)},CZ&limit=1&appid=${WEATHER_API_KEY}`);
+                const geoData = await geoResponse.json();
+                
+                if (geoData.length === 0) {
+                    throw new Error('Město nenalezeno');
+                }
+                
+                const lat = geoData[0].lat;
+                const lon = geoData[0].lon;
+                
+                // Získat předpověď počasí
+                const weatherResponse = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric&lang=cz`);
+                const forecast = await weatherResponse.json();
+                
+                displayRealWeatherForecast(forecast, location);
+                
+            } catch (error) {
+                weatherDisplay.innerHTML = `
+                    <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px;">
+                        ❌ Chyba při načítání počasí: ${error.message}<br>
+                        <small>Zkontrolujte název města nebo použijte alternativní nastavení počasí</small>
+                    </div>
+                `;
+                // Fallback na manuální výběr počasí
+                showManualWeatherSelection();
+            }
+        }
+        
+        function displayRealWeatherForecast(forecast, location) {
+            const weatherDisplay = document.getElementById('weatherDisplay');
+            const current = forecast.list[0];
+            
+            // Převod ikony
+            const iconMap = {
+                '01d': '☀️', '01n': '🌙', '02d': '⛅', '02n': '☁️',
+                '03d': '☁️', '03n': '☁️', '04d': '☁️', '04n': '☁️',
+                '09d': '🌧️', '09n': '🌧️', '10d': '🌦️', '10n': '🌧️',
+                '11d': '⛈️', '11n': '⛈️', '13d': '❄️', '13n': '❄️',
+                '50d': '🌫️', '50n': '🌫️'
+            };
+            
+            const icon = iconMap[current.weather[0].icon] || '🌤️';
+            
+            weatherDisplay.innerHTML = `
+                <div class="weather-current">
+                    <div class="weather-icon-large">${icon}</div>
+                    <div>
+                        <h5>${location}</h5>
+                        <div class="weather-temp">${Math.round(current.main.temp)}°C</div>
+                        <div>${current.weather[0].description}</div>
+                    </div>
+                    <div style="text-align: right; font-size: 0.9em;">
+                        <div>💧 ${current.main.humidity}%</div>
+                        <div>💨 ${Math.round(current.wind.speed * 3.6)} km/h</div>
+                        <div>📊 ${current.main.pressure} hPa</div>
+                    </div>
+                </div>
+            `;
+            
+            // Uložit data pro predikci
+            weatherData = {
+                current: {
+                    temp: current.main.temp,
+                    description: current.weather[0].description,
+                    factor: getWeatherFactorFromIcon(current.weather[0].icon)
+                },
+                forecast: forecast.list
+            };
+        }
+        
+        function showManualWeatherSelection() {
+            const weatherDisplay = document.getElementById('weatherDisplay');
+            weatherDisplay.innerHTML = `
+                <div style="padding: 15px;">
+                    <h5>📱 Manuální výběr počasí</h5>
+                    <div style="margin-top: 10px;">
+                        <label for="manualWeather">Očekávané počasí:</label>
+                        <select id="manualWeather" style="width: 100%; padding: 8px; margin-top: 5px;" onchange="setManualWeather()">
+                            <option value="">Vyberte počasí</option>
+                            <option value="slunečno">☀️ Slunečno</option>
+                            <option value="polojasno">⛅ Polojasno</option>
+                            <option value="oblačno">☁️ Oblačno</option>
+                            <option value="přeháňky">🌦️ Přeháňky</option>
+                            <option value="déšť">🌧️ Déšť</option>
+                            <option value="bouřka">⛈️ Bouřka</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function setManualWeather() {
+            const selectedWeather = document.getElementById('manualWeather').value;
+            const factors = {
+                'slunečno': 1.2,
+                'polojasno': 1.0,
+                'oblačno': 0.9,
+                'přeháňky': 0.7,
+                'déšť': 0.6,
+                'bouřka': 0.3
+            };
+            
+            weatherData = {
+                current: {
+                    description: selectedWeather,
+                    factor: factors[selectedWeather] || 1.0
+                }
+            };
+        }
+        
+        function getWeatherFactorFromIcon(icon) {
+            const factors = {
+                '01d': 1.2, '01n': 1.1, '02d': 1.0, '02n': 1.0,
+                '03d': 0.9, '03n': 0.9, '04d': 0.8, '04n': 0.8,
+                '09d': 0.6, '09n': 0.6, '10d': 0.5, '10n': 0.5,
+                '11d': 0.3, '11n': 0.3, '13d': 0.4, '13n': 0.4,
+                '50d': 0.7, '50n': 0.7
+            };
+            return factors[icon] || 1.0;
+        }
+        
+        function getAverageWeatherFactor() {
+            if (!weatherData || !weatherData.current) {
+                return 1.0;
+            }
+            return weatherData.current.factor;
+        }
+
         // AI Predikce
         function calculateAIPrediction() {
             try {
@@ -939,7 +1116,6 @@
                 const eventName = document.getElementById('eventName').value;
                 const location = document.getElementById('eventLocation').value;
                 const expectedVisitors = parseInt(document.getElementById('expectedVisitors').value);
-                const weather = document.getElementById('weather').value;
                 const donutPrice = parseFloat(document.getElementById('donutPrice').value);
                 const donutCost = parseFloat(document.getElementById('donutCost').value);
                 const staffCount = parseInt(document.getElementById('staffCount').value);
@@ -972,7 +1148,7 @@
                 }
                 
                 // Aplikace faktorů
-                let weatherFactor = getWeatherFactor(weather);
+                let weatherFactor = getAverageWeatherFactor();
                 let competitionFactor = getCompetitionFactor(competition);
                 let staffFactor = getStaffFactor(staffCount, expectedVisitors);
                 
@@ -1008,17 +1184,6 @@
         }
 
         // Pomocné funkce pro faktory
-        function getWeatherFactor(weather) {
-            const factors = {
-                'slunečno': 1.2,
-                'polojasno': 1.0,
-                'oblačno': 0.9,
-                'přeháňky': 0.7,
-                'déšt': 0.6
-            };
-            return factors[weather] || 1.0;
-        }
-
         function getCompetitionFactor(competition) {
             const factors = [1.0, 0.9, 0.8, 0.6]; // 0=žádná, 1=mírná, 2=střední, 3=vysoká
             return factors[competition] || 1.0;
