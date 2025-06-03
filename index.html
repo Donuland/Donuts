@@ -716,44 +716,7 @@
                 </div>
             </div>
                 
-                <div class="form-section">
-                    <h3>💰 Finanční parametry</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="donutPrice">Cena donutu (Kč)</label>
-                            <input type="number" id="donutPrice" value="45" min="0" step="5">
-                        </div>
-                        <div class="form-group">
-                            <label for="donutCost">Náklady na donut (Kč)</label>
-                            <input type="number" id="donutCost" value="18" min="0" step="1">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="rentAmount">Nájem (Kč)</label>
-                            <input type="number" id="rentAmount" value="10000" min="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="travelCosts">Náklady na cestu (Kč)</label>
-                            <input type="number" id="travelCosts" value="500" min="0">
-                        </div>
-                    </div>
-                </div>
-
-                <div id="predictionResults" style="display: none; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; border-radius: 15px; text-align: center; margin-top: 20px;">
-                    <h2>🎯 AI Predikce prodeje</h2>
-                    <div style="font-size: 3em; font-weight: bold; margin: 20px 0;" id="predictedSales">0</div>
-                    <p>Předpokládaný prodej donutů za celou akci</p>
-                    <div style="margin: 20px 0;">
-                        <div>Spolehlivost predikce: <span id="confidenceText">0%</span></div>
-                    </div>
-                    <div id="predictionDetails" style="margin-top: 20px;"></div>
-                </div>
-
-                <button class="btn btn-primary btn-large" onclick="calculatePrediction()" style="width: 100%; margin-top: 20px;">
-                    🤖 Vytvořit AI predikci
-                </button>
-            </div>
+    
 
             <!-- Tab: Kalendář -->
             <div id="calendar" class="tab-content">
@@ -794,9 +757,7 @@
     </div>
 
     <script>
-        // Globální proměnné
-        let historicalData = [];
-        let currentPrediction = null;
+   
 
         // Základní funkce pro správu tabů
         function showTab(tabName) {
@@ -819,100 +780,6 @@
             message.onclick = () => message.remove();
         }
 
-        // Základní AI predikce
-        function calculatePrediction() {
-            try {
-                const eventData = gatherEventData();
-                if (!validateEventData(eventData)) {
-                    showMessage('Vyplňte prosím všechna základní pole', 'warning');
-                    return;
-                }
-                
-                const prediction = runBasicPrediction(eventData);
-                currentPrediction = prediction;
-                displayResults(prediction);
-                showMessage('Predikce byla úspěšně vypočítána', 'success');
-            } catch (error) {
-                console.error('Chyba při výpočtu predikce:', error);
-                showMessage('Chyba při výpočtu predikce', 'error');
-            }
-        }
-
-        function gatherEventData() {
-            return {
-                eventType: document.getElementById('eventType').value,
-                eventName: document.getElementById('eventName').value,
-                location: document.getElementById('eventLocation').value,
-                date: document.getElementById('eventDate').value,
-                duration: parseInt(document.getElementById('eventDuration').value),
-                expectedVisitors: parseInt(document.getElementById('expectedVisitors').value),
-                donutPrice: parseFloat(document.getElementById('donutPrice').value),
-                donutCost: parseFloat(document.getElementById('donutCost').value),
-                rentAmount: parseFloat(document.getElementById('rentAmount').value),
-                travelCosts: parseFloat(document.getElementById('travelCosts').value)
-            };
-        }
-
-        function validateEventData(data) {
-            return data.eventType && data.eventName && data.location && data.date;
-        }
-
-        function runBasicPrediction(eventData) {
-            // Základní algoritmus predikce
-            const baseSalesRate = 0.08; // 8% návštěvníků koupí donut
-            let predictedSales = Math.round(eventData.expectedVisitors * baseSalesRate * eventData.duration);
-            
-            // Sezónní faktor
-            const month = new Date(eventData.date).getMonth() + 1;
-            const seasonalFactors = {1: 0.7, 2: 0.8, 3: 0.9, 4: 1.1, 5: 1.3, 6: 1.4, 7: 1.5, 8: 1.4, 9: 1.2, 10: 1.0, 11: 0.8, 12: 0.9};
-            predictedSales = Math.round(predictedSales * (seasonalFactors[month] || 1.0));
-            
-            // Finanční výpočty
-            const revenue = predictedSales * eventData.donutPrice;
-            const productionCost = predictedSales * eventData.donutCost;
-            const totalCosts = productionCost + eventData.rentAmount + eventData.travelCosts;
-            const profit = revenue - totalCosts;
-            const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
-            
-            return {
-                predictedSales,
-                revenue,
-                totalCosts,
-                profit,
-                margin,
-                confidence: 75
-            };
-        }
-
-        function displayResults(prediction) {
-            document.getElementById('predictedSales').textContent = prediction.predictedSales.toLocaleString();
-            document.getElementById('confidenceText').textContent = prediction.confidence + '% spolehlivost';
-            
-            document.getElementById('predictionDetails').innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
-                        <h4>💰 Tržba</h4>
-                        <div style="font-size: 1.5em; font-weight: bold; color: #f1c40f;">${prediction.revenue.toLocaleString()} Kč</div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
-                        <h4>💸 Náklady</h4>
-                        <div style="font-size: 1.5em; font-weight: bold; color: #f1c40f;">${prediction.totalCosts.toLocaleString()} Kč</div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
-                        <h4>📈 Zisk</h4>
-                        <div style="font-size: 1.5em; font-weight: bold; color: ${prediction.profit > 0 ? '#27ae60' : '#e74c3c'};">${prediction.profit.toLocaleString()} Kč</div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
-                        <h4>📊 Marže</h4>
-                        <div style="font-size: 1.5em; font-weight: bold; color: #f1c40f;">${prediction.margin.toFixed(1)}%</div>
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('predictionResults').style.display = 'block';
-            document.getElementById('predictionResults').scrollIntoView({ behavior: 'smooth' });
-        }
-
         // Placeholder funkce
         function loadData() {
             showMessage('Funkce načítání dat bude implementována v další části', 'info');
@@ -922,15 +789,23 @@
             showMessage('Nastavení uloženo', 'success');
         }
 
-        // Inicializace
+    // Inicializace
         document.addEventListener('DOMContentLoaded', function() {
             // Nastavení výchozího data na zítra
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             document.getElementById('eventDate').value = tomorrow.toISOString().split('T')[0];
             
+            // Přidané funkce pro predikční systém
+            loadData();
+            initializePredictionSystem();
+            
+            // Auto-refresh historical data every 5 minutes
+            setInterval(loadHistoricalData, 5 * 60 * 1000);
+            
             showMessage('Aplikace byla úspěšně načtena', 'success');
         });
+        
         // Weather API functionality
         const WEATHER_API_KEY = 'c2fb0e86623880dc86162892b0fd9c95'; // Nahraďte svým API klíčem
         
@@ -1643,19 +1518,21 @@
             localStorage.setItem('predictionLearning', JSON.stringify(learningData));
         }
 
-        // Update the existing document ready function
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-            initializePredictionSystem();
+        // Initialize prediction system
+        function initializePredictionSystem() {
+            setupPredictionListeners();
             
-            // Auto-refresh historical data every 5 minutes
-            setInterval(loadHistoricalData, 5 * 60 * 1000);
-        });
-
-        // Update the existing handleEnvironmentChange function
-        function handleEnvironmentChange() {
-            loadWeather();
-            handlePredictionInputChange(); // Also trigger prediction
+            // Initialize business model if not set
+            const businessModelRadio = document.querySelector('input[name="businessModel"]:checked');
+            if (!businessModelRadio) {
+                // Set default to 'owner'
+                const ownerRadio = document.querySelector('input[name="businessModel"][value="owner"]');
+                if (ownerRadio) {
+                    ownerRadio.checked = true;
+                }
+            }
+            
+            console.log('Prediction system initialized');
         }
     </script>
 </body>
