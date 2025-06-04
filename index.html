@@ -619,16 +619,30 @@
                 <div id="predictionSection" class="prediction-section" style="display: none;">
                     <h4>📊 Predikce prodeje a rentabilita</h4>
                     
-                    <!-- Business Model Selection -->
-                    <div class="business-model-selection">
-                        <label><strong>Model podnikání:</strong></label>
-                        <div class="radio-group">
-                            <label><input type="radio" name="businessModel" value="owner" checked> 👨‍💼 Majitel (brigádníci)</label>
-                            <label><input type="radio" name="businessModel" value="franchisee"> 🤝 Franšízant</label>
-                            <label><input type="radio" name="businessModel" value="employee"> 👨‍💻 Zaměstnanec</label>
+                <h3>Model podnikání:</h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <label class="business-model-option">
+                        <input type="radio" name="businessModel" value="owner" checked>
+                        <div>
+                            <span style="font-size: 2em;">🏪</span>
+                            <div style="margin-top: 5px; font-weight: bold; color: #2c3e50;">Majitel</div>
                         </div>
-                    </div>
-
+                    </label>
+                    <label class="business-model-option">
+                        <input type="radio" name="businessModel" value="franchisee">
+                        <div>
+                            <span style="font-size: 2em;">🤝</span>
+                            <div style="margin-top: 5px; font-weight: bold; color: #2c3e50;">Franšízant</div>
+                        </div>
+                    </label>
+                    <label class="business-model-option">
+                        <input type="radio" name="businessModel" value="employee">
+                        <div>
+                            <span style="font-size: 2em;">👷</span>
+                            <div style="margin-top: 5px; font-weight: bold; color: #2c3e50;">Zaměstnanec</div>
+                        </div>
+                    </label>
+                </div>
                     <!-- Financial Parameters -->
                     <div class="financial-params">
                         <div class="param-row">
