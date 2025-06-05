@@ -51,7 +51,7 @@
             width: 12px; 
             height: 12px; 
             border-radius: 50%; 
-            background: #27ae60; 
+            background: #f39c12; 
         }
         .nav-tabs { 
             display: flex; 
@@ -147,6 +147,14 @@
         .btn-primary:hover { 
             transform: translateY(-2px); 
             box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3); 
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #219a52);
+            color: white;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
         }
         .btn-large { 
             font-size: 1.2em; 
@@ -287,8 +295,7 @@
         .radio-group input[type="radio"] {
             margin-right: 8px;
         }
-
-        .financial-params {
+.financial-params {
             background: rgba(255, 255, 255, 0.15);
             padding: 15px;
             border-radius: 8px;
@@ -451,6 +458,34 @@
             background: rgba(255, 255, 255, 0.35);
             transform: translateY(-1px);
         }
+
+        /* Enhanced styles for new features */
+        .prediction-actions {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .event-exists-warning {
+            background: rgba(255, 193, 7, 0.9);
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+
+        .transport-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 5px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
 .message { 
             padding: 15px; 
             border-radius: 8px; 
@@ -536,7 +571,7 @@
             <div class="header-controls">
                 <div class="sync-status">
                     <div class="status-indicator"></div>
-                    <span id="syncStatusText">Připojeno</span>
+                    <span id="syncStatusText">Připojuji...</span>
                 </div>
                 <button class="btn btn-primary" onclick="loadData()">🔄 Načíst data</button>
             </div>
@@ -556,7 +591,7 @@
                     <h3>🎯 Základní informace akce</h3>
                     <div class="form-group">
                         <label for="eventType">Typ akce</label>
-                        <select id="eventType">
+                        <select id="eventType" onchange="updatePrediction()">
                             <option value="">Vyberte typ akce</option>
                             <option value="food festival">Food festival</option>
                             <option value="veletrh">Veletrh</option>
@@ -569,12 +604,12 @@
                     </div>
                     <div class="form-group">
                         <label for="eventName">Název akce</label>
-                        <input type="text" id="eventName" placeholder="např. Burger Fest Praha">
+                        <input type="text" id="eventName" placeholder="např. Burger Fest Praha" onchange="updatePrediction()">
                     </div>
-                    <div class="form-row">
+<div class="form-row">
                         <div class="form-group">
                             <label for="eventLocation">Město/Lokalita</label>
-                            <input type="text" id="eventLocation" placeholder="např. Praha, Brno, Hostinné..." oninput="loadWeather()">
+                            <input type="text" id="eventLocation" placeholder="např. Praha, Brno, Ostrava..." oninput="handleLocationChange()">
                         </div>
                         <div class="form-group">
                             <label for="eventDate">Datum začátku akce</label>
@@ -594,7 +629,7 @@
                         </div>
                         <div class="form-group">
                             <label for="expectedVisitors">Očekávaná návštěvnost</label>
-                            <input type="number" id="expectedVisitors" value="2000" min="0">
+                            <input type="number" id="expectedVisitors" value="2000" min="0" onchange="updatePrediction()">
                         </div>
                     </div>
                     <div class="form-group">
@@ -616,36 +651,46 @@
                 </div>
 
                 <!-- Sales Prediction Section -->
-                <div id="predictionSection" class="prediction-section" style="display: none;">
+                <div id="predictionSection" class="prediction-section">
                     <h4>📊 Predikce prodeje a rentabilita</h4>
                     
                     <!-- Business Model Selection -->
                     <div class="business-model-selection">
-                        <label><strong>Model podnikání:</strong></label>
+                        <h5>Model podnikání:</h5>
                         <div class="radio-group">
-                            <label><input type="radio" name="businessModel" value="owner" checked> 👨‍💼 Majitel (brigádníci)</label>
-                            <label><input type="radio" name="businessModel" value="franchisee"> 🤝 Franšízant</label>
-                            <label><input type="radio" name="businessModel" value="employee"> 👨‍💻 Zaměstnanec</label>
+                            <label>
+                                <input type="radio" name="businessModel" value="owner" checked onchange="updatePrediction()">
+                                🏪 Majitel
+                            </label>
+                            <label>
+                                <input type="radio" name="businessModel" value="franchisee" onchange="updatePrediction()">
+                                🤝 Franšízant
+                            </label>
+                            <label>
+                                <input type="radio" name="businessModel" value="employee" onchange="updatePrediction()">
+                                👷 Zaměstnanec
+                            </label>
                         </div>
                     </div>
-
+                    
                     <!-- Financial Parameters -->
                     <div class="financial-params">
                         <div class="param-row">
                             <label>Náklady na donut (Kč):</label>
-                            <input type="number" id="donutCost" value="15" min="0" step="0.5">
+                            <input type="number" id="donutCost" value="15" min="0" step="0.5" onchange="updatePrediction()">
                         </div>
                         <div class="param-row">
                             <label>Prodejní cena (Kč):</label>
-                            <input type="number" id="sellingPrice" value="45" min="0" step="0.5">
+                            <input type="number" id="sellingPrice" value="45" min="0" step="0.5" onchange="updatePrediction()">
                         </div>
                         <div class="param-row">
                             <label>Náklady na dopravu (Kč):</label>
-                            <input type="number" id="transportCost" value="500" min="0" step="50">
+                            <input type="number" id="transportCost" value="500" min="0" step="50" onchange="updatePrediction()" readonly>
+                            <div class="transport-info" id="transportInfo">Automaticky vypočítáno dle vzdálenosti od Prahy</div>
                         </div>
                         <div class="param-row">
                             <label>Ostatní náklady (Kč):</label>
-                            <input type="number" id="otherCosts" value="200" min="0" step="50">
+                            <input type="number" id="otherCosts" value="200" min="0" step="50" onchange="updatePrediction()">
                         </div>
                         <div class="param-row">
                             <label>Model nájmu:</label>
@@ -657,17 +702,22 @@
                         </div>
                         <div class="param-row" id="fixedRentalRow">
                             <label>Fixní nájem (Kč):</label>
-                            <input type="number" id="fixedRental" value="5000" min="0" step="100">
+                            <input type="number" id="fixedRental" value="5000" min="0" step="100" onchange="updatePrediction()">
                         </div>
                         <div class="param-row" id="percentageRentalRow" style="display: none;">
                             <label>% z obratu:</label>
-                            <input type="number" id="percentageRental" value="15" min="0" max="50" step="0.5">
+                            <input type="number" id="percentageRental" value="15" min="0" max="50" step="0.5" onchange="updatePrediction()">
                         </div>
+                    </div>
+<!-- Event Exists Warning -->
+                    <div id="eventExistsWarning" class="event-exists-warning" style="display: none;">
+                        <h5>⚠️ Podobná akce byla nalezena v historii!</h5>
+                        <div id="existingEventDetails"></div>
                     </div>
 
                     <!-- Prediction Results -->
                     <div id="predictionResults" class="prediction-results">
-                        <div class="prediction-loading">📍 Vyplňte všechny údaje pro načtení predikce</div>
+                        <div class="prediction-loading">📍 Vyplňte typ akce a návštěvnost pro načtení predikce</div>
                     </div>
 
                     <!-- Historical Data Display -->
@@ -685,18 +735,26 @@
                             <button onclick="applyManualOverride()" class="btn-override">Použít úpravu</button>
                         </div>
                     </div>
+
+                    <!-- Prediction Actions -->
+                    <div class="prediction-actions" style="display: none;" id="predictionActions">
+                        <button class="btn btn-success btn-large" onclick="saveCurrentPrediction()">
+                            📅 Vložit do kalendáře
+                        </button>
+                    </div>
                 </div>
             </div>
-<!-- Tab: Kalendář -->
+            
+            <!-- Tab: Kalendář -->
             <div id="calendar" class="tab-content">
                 <div class="form-section">
-                    <h3>📅 Kalendář plánovaných akcí</h3>
+                    <h3>📅 Kalendář akcí</h3>
                     
                     <!-- Controls for calendar -->
                     <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
-                        <button class="btn btn-primary" onclick="saveCurrentPrediction()">💾 Uložit aktuální predikci</button>
-                        <button class="btn btn-primary" onclick="loadSavedEvents()">🔄 Načíst akce</button>
+                        <button class="btn btn-primary" onclick="loadData()">🔄 Načíst akce ze Sheetu</button>
                         <button class="btn btn-primary" onclick="exportCalendar()">📤 Export kalendáře</button>
+                        <button class="btn btn-primary" onclick="syncToSheet()">☁️ Synchronizovat se Sheetem</button>
                     </div>
                     
                     <!-- Calendar view selector -->
@@ -730,7 +788,7 @@
                         <div id="eventList"></div>
                     </div>
                     
-                    <!-- Event details modal placeholder -->
+                    <!-- Event details modal -->
                     <div id="eventModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;" onclick="closeEventModal()">
                         <div style="background: white; margin: 50px auto; padding: 30px; border-radius: 10px; max-width: 600px; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
                             <h3 style="margin-top: 0;">Detail akce</h3>
@@ -749,7 +807,7 @@
                 <div class="form-section">
                     <h3>📊 Analýza prodejních dat</h3>
                     <div id="analyticsContent">
-                        <p>Načtěte historická data pro zobrazení analýz</p>
+                        <p>Načítám analytická data...</p>
                     </div>
                 </div>
             </div>
@@ -760,66 +818,58 @@
                     <h3>⚙️ Nastavení aplikace</h3>
                     <div class="form-group">
                         <label for="defaultDonutPrice">Výchozí cena donutu (Kč)</label>
-                        <input type="number" id="defaultDonutPrice" value="110" min="0" step="5">
+                        <input type="number" id="defaultDonutPrice" value="45" min="0" step="5">
                     </div>
                     <div class="form-group">
                         <label for="defaultDonutCost">Výchozí náklady na donut (Kč)</label>
-                        <input type="number" id="defaultDonutCost" value="32" min="0" step="1">
+                        <input type="number" id="defaultDonutCost" value="15" min="0" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="defaultTransportRate">Náklady na dopravu (Kč/km)</label>
+                        <input type="number" id="defaultTransportRate" value="10" min="0" step="1">
                     </div>
                     <button class="btn btn-primary" onclick="saveSettings()">💾 Uložit nastavení</button>
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        // Global variables
-        let historicalData = [];
+<script>
+        // =============================================================================
+        // GLOBAL VARIABLES
+        // =============================================================================
+        
+        // Enhanced global variables for Sheet integration
+        let allSheetData = []; // Všechna data ze Sheetu (historické + plánované)
+        let historicalData = []; // Jen historické akce s prodejními daty
+        let plannedEvents = []; // Plánované akce ze Sheetu
+        let localSavedEvents = []; // Lokálně uložené predikce
         let lastPrediction = null;
         let currentDate = new Date();
         let calendarView = 'month';
-        let savedEvents = [];
         let selectedEventId = null;
 
-        // Weather API key
+        // API keys and constants
         const WEATHER_API_KEY = 'c2fb0e86623880dc86162892b0fd9c95';
+        const SHEET_ID = '1LclCz9hb0hlb1D92OyVqk6Cbam7PRK6KgAzGgiGs6iE';
+        const SHEET_API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+        
+        // Prague coordinates for distance calculation
+        const PRAGUE_COORDS = { lat: 50.0755, lon: 14.4378 };
 
-        // Colors for future events
-        const futureEventColors = [
+        // Colors for events
+        const eventColors = [
             '#3498db', '#9b59b6', '#e74c3c', '#f39c12',
-            '#8e44ad', '#e91e63', '#795548', '#607d8b'
+            '#8e44ad', '#e91e63', '#795548', '#607d8b',
+            '#27ae60', '#e67e22', '#34495e', '#16a085'
         ];
 
-        // Tab management
-        function showTab(tabName, event) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
-            
-            // Initialize calendar when switching to calendar tab
-            if (tabName === 'calendar') {
-                initializeCalendar();
-            }
-        }
-
-        // Message display function
-        function showMessage(text, type = 'info') {
-            document.querySelectorAll('.message').forEach(msg => msg.remove());
-            const message = document.createElement('div');
-            message.className = `message ${type}`;
-            message.textContent = text;
-            document.body.appendChild(message);
-            setTimeout(() => { 
-                if (message.parentNode) message.remove(); 
-            }, 4000);
-            message.onclick = () => message.remove();
-        }
-
-        // Initialize application
+        // =============================================================================
+        // INITIALIZATION
+        // =============================================================================
+        
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing Donuland Management System...');
+            
             // Set default date to tomorrow
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
@@ -829,52 +879,70 @@
             loadData();
             initializePredictionSystem();
             initializeCalendar();
+            loadSettings();
             
-            // Auto-refresh historical data every 5 minutes
-            setInterval(loadHistoricalData, 5 * 60 * 1000);
+            // Auto-refresh data every 10 minutes
+            setInterval(loadData, 10 * 60 * 1000);
             
             showMessage('Aplikace byla úspěšně načtena', 'success');
         });
 
-        // Load data function
+        // =============================================================================
+        // DATA LOADING AND PARSING
+        // =============================================================================
+        
         async function loadData() {
             try {
+                updateSyncStatus('loading', 'Načítám data...');
                 await loadHistoricalData();
+                loadLocalSavedEvents();
+                updateSyncStatus('success', `Načteno: ${historicalData.length} historických, ${plannedEvents.length} plánovaných akcí`);
                 showMessage('Data byla úspěšně načtena', 'success');
             } catch (error) {
+                updateSyncStatus('error', 'Chyba při načítání dat');
                 showMessage('Chyba při načítání dat', 'error');
                 console.error('Load data error:', error);
             }
         }
 
-        // Save settings
-        function saveSettings() {
-            const settings = {
-                defaultDonutPrice: document.getElementById('defaultDonutPrice').value,
-                defaultDonutCost: document.getElementById('defaultDonutCost').value
-            };
-            localStorage.setItem('donulandSettings', JSON.stringify(settings));
-            showMessage('Nastavení uloženo', 'success');
-        }
-
-        // Load historical data from Google Sheets
         async function loadHistoricalData() {
-            const SHEET_ID = '1LclCz9hb0hlb1D92OyVqk6Cbam7PRK6KgAzGgiGs6iE';
-            const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
-            
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(SHEET_API_URL);
                 const csvText = await response.text();
-                historicalData = parseCSVData(csvText);
-                console.log('Historical data loaded:', historicalData.length, 'events');
+                
+                // Parse all data
+                allSheetData = parseEnhancedCSVData(csvText);
+                
+                // Separate historical and planned events
+                const currentDate = new Date();
+                historicalData = [];
+                plannedEvents = [];
+                
+                allSheetData.forEach(event => {
+                    if (event.eventDate && event.eventDate < currentDate) {
+                        // Historical event
+                        if (event.actualSales && event.actualSales > 0) {
+                            historicalData.push(event);
+                        }
+                    } else if (event.eventDate && event.eventDate >= currentDate && event.confirmed === 'ANO') {
+                        // Planned confirmed event
+                        plannedEvents.push(event);
+                    }
+                });
+                
+                console.log('✅ Sheet data loaded:', {
+                    total: allSheetData.length,
+                    historical: historicalData.length,
+                    planned: plannedEvents.length
+                });
+                
             } catch (error) {
-                console.error('Error loading historical data:', error);
-                showMessage('Chyba při načítání historických dat', 'error');
+                console.error('Error loading Sheet data:', error);
+                throw error;
             }
         }
 
-        // Parse CSV data
-        function parseCSVData(csvText) {
+        function parseEnhancedCSVData(csvText) {
             const lines = csvText.split('\n');
             const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
             const data = [];
@@ -892,27 +960,79 @@
                     }
                 });
 
-                // Only include events with actual sales data
-                if (event['realně prodáno'] && !isNaN(parseInt(event['realně prodáno']))) {
-                    event.actualSales = parseInt(event['realně prodáno']);
-                    event.estimatedSales = parseInt(event['odhad prodeje']) || 0;
-                    event.attendance = parseInt(event['návštěvnost']) || 0;
-                    event.rating = parseInt(event['hodnocení akce 1-5']) || 0;
-                    event.competition = parseInt(event['konkurence']) || 1;
-                    event.location = event['Lokalita'] || '';
-                    event.eventName = event['Název akce'] || '';
-                    event.category = event['kategorie'] || '';
-                    event.weather = event['počasí'] || '';
-                    event.rentalCost = parseFloat(event['Cena nájmu']) || 0;
+                // Enhanced data mapping with all relevant fields
+                const processedEvent = {
+                    // Basic info
+                    eventName: event['Název akce'] || '',
+                    location: event['Lokalita'] || '',
+                    category: event['kategorie'] || '',
+                    confirmed: event['POTVRZENO'] || '',
+                    employeeType: event['typ zaměstnance'] || '',
+                    region: event['Čechy / Morava'] || '',
                     
-                    data.push(event);
+                    // Financial data
+                    actualSales: parseIntSafe(event['realně prodáno']),
+                    estimatedSales: parseIntSafe(event['odhad prodeje']),
+                    rentalCost: parseFloatSafe(event['Cena nájmu']),
+                    transportCost: parseFloatSafe(event['náklady na cestu']),
+                    otherCosts: parseFloatSafe(event['ostatní náklady']),
+                    attendance: parseIntSafe(event['návstěvnost']),
+                    
+                    // Quality indicators
+                    rating: parseIntSafe(event['hodnocení akce 1-5']),
+                    competition: parseIntSafe(event['konkurence']),
+                    weather: event['počasí'] || '',
+                    employeeCount: parseIntSafe(event['počet zaměstnanců']),
+                    
+                    // Meta
+                    notes: event['poznámka'] || '',
+                    responsiblePerson: event['KDO MÁ NA STAROST'] || '',
+                    workerConfirmed: event['Potvrzeno Pracovníkem'] || '',
+                    
+                    // Parse date
+                    eventDate: parseCSVDate(event['Datum']),
+                    
+                    // Generate ID for tracking
+                    id: generateEventId(event['Název akce'], event['Datum'], event['Lokalita']),
+                    
+                    // Mark as Sheet event
+                    source: 'sheet',
+                    
+                    // Raw data for reference
+                    rawData: event
+                };
+
+                // Only include valid events
+                if (processedEvent.eventName || processedEvent.location) {
+                    data.push(processedEvent);
                 }
             }
 
             return data;
         }
 
-        // Parse CSV line handling quotes and commas
+        // Utility functions for parsing
+        function parseIntSafe(value) {
+            if (!value || value === '') return 0;
+            const parsed = parseInt(value);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
+        function parseFloatSafe(value) {
+            if (!value || value === '') return 0;
+            const parsed = parseFloat(value);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
+        function parseCSVDate(dateStr) {
+            if (!dateStr) return null;
+            const parts = dateStr.split('.');
+            if (parts.length === 3) {
+                return new Date(parts[2], parts[1] - 1, parts[0]);
+            }
+            return null;
+        }
+
         function parseCSVLine(line) {
             const result = [];
             let current = '';
@@ -934,7 +1054,773 @@
             result.push(current);
             return result;
         }
-// Weather functions
+
+        function generateEventId(name, date, location) {
+            const str = `${name}-${date}-${location}`.toLowerCase().replace(/\s+/g, '-');
+            return btoa(str).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+        }
+
+        function loadLocalSavedEvents() {
+            const saved = localStorage.getItem('donulandEvents');
+            if (saved) {
+                localSavedEvents = JSON.parse(saved);
+            }
+        }
+// =============================================================================
+        // UI MANAGEMENT
+        // =============================================================================
+
+        function showTab(tabName, event) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            
+            // Initialize specific tab content
+            if (tabName === 'calendar') {
+                initializeCalendar();
+            } else if (tabName === 'analytics') {
+                loadAnalytics();
+            }
+        }
+
+        function showMessage(text, type = 'info') {
+            // Remove existing messages
+            document.querySelectorAll('.message').forEach(msg => msg.remove());
+            
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.textContent = text;
+            document.body.appendChild(message);
+            
+            // Auto-remove after 4 seconds
+            setTimeout(() => { 
+                if (message.parentNode) message.remove(); 
+            }, 4000);
+            
+            // Allow manual removal
+            message.onclick = () => message.remove();
+        }
+
+        function updateSyncStatus(status, message) {
+            const indicator = document.querySelector('.status-indicator');
+            const text = document.getElementById('syncStatusText');
+            
+            if (status === 'success') {
+                indicator.style.background = '#27ae60';
+                text.textContent = 'Připojeno';
+            } else if (status === 'error') {
+                indicator.style.background = '#e74c3c';
+                text.textContent = 'Chyba';
+            } else if (status === 'loading') {
+                indicator.style.background = '#f39c12';
+                text.textContent = 'Načítám...';
+            }
+            
+            if (message) {
+                indicator.title = message;
+                text.title = message;
+            }
+        }
+
+        function showPredictionActions() {
+            document.getElementById('predictionActions').style.display = 'block';
+        }
+
+        function hidePredictionActions() {
+            document.getElementById('predictionActions').style.display = 'none';
+        }
+
+        // Debounce function for input events
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // =============================================================================
+        // PREDICTION SYSTEM
+        // =============================================================================
+
+        function initializePredictionSystem() {
+            console.log('🧠 Initializing prediction system...');
+            
+            // Add event listeners for automatic updates
+            const inputs = [
+                'eventType', 'eventName', 'expectedVisitors', 'eventEnvironment',
+                'donutCost', 'sellingPrice', 'otherCosts',
+                'fixedRental', 'percentageRental'
+            ];
+            
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', updatePrediction);
+                    element.addEventListener('input', debounce(updatePrediction, 500));
+                }
+            });
+
+            // Business model radio buttons
+            document.querySelectorAll('input[name="businessModel"]').forEach(radio => {
+                radio.addEventListener('change', updatePrediction);
+            });
+
+            // Show prediction section immediately
+            document.getElementById('predictionSection').style.display = 'block';
+        }
+
+        // Handle location change with transport cost calculation
+        function handleLocationChange() {
+            const location = document.getElementById('eventLocation').value;
+            if (location && location.length > 2) {
+                // Debounced weather and transport cost update
+                setTimeout(() => {
+                    loadWeather();
+                    updatePrediction();
+                }, 1000);
+            }
+        }
+
+        // Handle environment change
+        function handleEnvironmentChange() {
+            const environment = document.getElementById('eventEnvironment').value;
+            const weatherSection = document.getElementById('weatherSection');
+            
+            if (environment === 'indoor') {
+                weatherSection.style.opacity = '0.6';
+                showMessage('Vnitřní akce - počasí má menší vliv na prodej', 'info');
+            } else {
+                weatherSection.style.opacity = '1';
+            }
+            
+            updatePrediction();
+        }
+
+        // Update rental inputs based on model
+        function updateRentalInputs() {
+            const model = document.getElementById('rentalModel').value;
+            const fixedRow = document.getElementById('fixedRentalRow');
+            const percentageRow = document.getElementById('percentageRentalRow');
+            
+            if (model === 'fixed') {
+                fixedRow.style.display = 'flex';
+                percentageRow.style.display = 'none';
+            } else if (model === 'percentage') {
+                fixedRow.style.display = 'none';
+                percentageRow.style.display = 'flex';
+            } else { // mixed
+                fixedRow.style.display = 'flex';
+                percentageRow.style.display = 'flex';
+            }
+            
+            updatePrediction();
+        }
+
+        // Enhanced prediction calculation
+        async function updatePrediction() {
+            const eventType = document.getElementById('eventType').value;
+            const eventName = document.getElementById('eventName').value.trim();
+            const eventLocation = document.getElementById('eventLocation').value.trim();
+            const expectedVisitors = parseInt(document.getElementById('expectedVisitors').value) || 0;
+            const environment = document.getElementById('eventEnvironment').value;
+            const duration = parseInt(document.getElementById('eventDuration').value);
+            
+            if (!eventType || !expectedVisitors) {
+                document.getElementById('predictionResults').innerHTML = 
+                    '<div class="prediction-loading">📍 Vyplňte typ akce a návštěvnost pro načtení predikce</div>';
+                hidePredictionActions();
+                return;
+            }
+
+            // Show loading
+            document.getElementById('predictionResults').innerHTML = 
+                '<div class="prediction-loading">🔄 Počítám predikci...</div>';
+
+            try {
+                // Check if this event already exists in historical data
+                const existingEvent = findSimilarEventInHistory(eventName, eventLocation, eventType);
+                if (existingEvent) {
+                    showHistoricalEventWarning(existingEvent);
+                } else {
+                    // Hide warning if no similar event found
+                    document.getElementById('eventExistsWarning').style.display = 'none';
+                }
+
+                // Calculate transport cost based on distance
+                const transportCost = await calculateTransportCost(eventLocation);
+                document.getElementById('transportCost').value = transportCost;
+                updateTransportInfo(eventLocation, transportCost);
+
+                // Calculate base prediction using enhanced algorithm
+                let baseSales = calculateEnhancedBaseSales(eventType, expectedVisitors, duration, eventLocation);
+                
+                // Apply weather factor
+                let weatherFactor = 1.0;
+                if (window.currentWeatherData && environment === 'outdoor') {
+                    const avgTemp = window.currentWeatherData.avgTemp;
+                    const totalRain = window.currentWeatherData.totalRain;
+                    weatherFactor = calculateWeatherImpact(avgTemp, totalRain).factor;
+                }
+
+                // Apply enhanced historical data adjustment
+                const historicalFactor = getEnhancedHistoricalAdjustment(eventType, expectedVisitors, eventLocation);
+                
+                // Apply location-specific adjustment
+                const locationFactor = getLocationAdjustment(eventLocation);
+                
+                // Calculate final prediction
+                const predictedSales = Math.round(baseSales * weatherFactor * historicalFactor * locationFactor);
+                const confidence = calculateEnhancedConfidence(eventType, expectedVisitors, eventLocation);
+                
+                // Financial calculations with enhanced logic
+                const financials = calculateEnhancedFinancials(predictedSales);
+                
+                // Store enhanced prediction
+                lastPrediction = {
+                    eventName: eventName,
+                    eventType: eventType,
+                    location: eventLocation,
+                    date: document.getElementById('eventDate').value,
+                    duration: duration,
+                    expectedVisitors: expectedVisitors,
+                    predictedSales: predictedSales,
+                    confidence: confidence,
+                    financials: financials,
+                    weather: window.currentWeatherData,
+                    transportCost: transportCost,
+                    similarEvents: existingEvent ? [existingEvent] : [],
+                    factors: {
+                        base: baseSales,
+                        weather: weatherFactor,
+                        historical: historicalFactor,
+                        location: locationFactor
+                    },
+                    businessModel: document.querySelector('input[name="businessModel"]:checked').value,
+                    environment: environment
+                };
+
+                // Display enhanced results
+                displayEnhancedPredictionResults(predictedSales, confidence, financials);
+                
+                // Show historical data with enhanced matching
+                displayEnhancedHistoricalData(eventType, expectedVisitors, eventLocation, eventName);
+                
+                // Show manual override and actions
+                document.getElementById('manualOverride').style.display = 'block';
+                document.getElementById('manualPrediction').value = predictedSales;
+                showPredictionActions();
+
+            } catch (error) {
+                console.error('Prediction calculation error:', error);
+                document.getElementById('predictionResults').innerHTML = 
+                    '<div class="prediction-loading" style="color: #e74c3c;">❌ Chyba při výpočtu predikce</div>';
+                hidePredictionActions();
+            }
+        }
+// Find similar event in historical data
+        function findSimilarEventInHistory(eventName, location, eventType) {
+            if (!eventName || historicalData.length === 0) return null;
+            
+            // Exact name match (case insensitive, partial match)
+            const exactMatch = historicalData.find(event => 
+                event.eventName && 
+                event.eventName.toLowerCase().includes(eventName.toLowerCase()) &&
+                eventName.toLowerCase().includes(event.eventName.toLowerCase().split(' ')[0])
+            );
+            
+            if (exactMatch) return exactMatch;
+            
+            // Location + type match
+            const locationTypeMatch = historicalData.find(event => 
+                event.location && event.location.toLowerCase() === location.toLowerCase() &&
+                event.category && event.category.toLowerCase().includes(eventType.toLowerCase())
+            );
+            
+            return locationTypeMatch;
+        }
+
+        // Show warning if event exists in history
+        function showHistoricalEventWarning(event) {
+            const warningDiv = document.getElementById('eventExistsWarning');
+            const detailsDiv = document.getElementById('existingEventDetails');
+            
+            const accuracy = event.estimatedSales > 0 ? 
+                Math.round((event.actualSales / event.estimatedSales) * 100) : 'N/A';
+            
+            const eventDate = event.eventDate ? event.eventDate.toLocaleDateString('cs-CZ') : 'N/A';
+            
+            detailsDiv.innerHTML = `
+                <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>${event.eventName}</strong> - ${event.location}<br>
+                    <small>Datum: ${eventDate} | Prodáno: ${event.actualSales} ks | Přesnost predikce: ${accuracy}%</small>
+                </div>
+            `;
+            
+            warningDiv.style.display = 'block';
+            
+            showMessage(
+                `⚠️ Podobná akce již proběhla: ${event.eventName} - výsledek: ${event.actualSales} ks`,
+                'warning'
+            );
+        }
+
+        // Calculate transport cost based on distance from Prague
+        async function calculateTransportCost(location) {
+            if (!location) return 500; // Default cost
+            
+            try {
+                // Get coordinates for the location
+                const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)},CZ&limit=1&appid=${WEATHER_API_KEY}`;
+                const geoResponse = await fetch(geoUrl);
+                const geoData = await geoResponse.json();
+                
+                if (!geoData || geoData.length === 0) {
+                    return 500; // Default if location not found
+                }
+
+                const lat = geoData[0].lat;
+                const lon = geoData[0].lon;
+                
+                // Calculate distance from Prague
+                const distance = calculateDistance(PRAGUE_COORDS.lat, PRAGUE_COORDS.lon, lat, lon);
+                
+                // Get transport rate from settings
+                const transportRate = parseFloat(document.getElementById('defaultTransportRate').value) || 10;
+                
+                // Transport cost: rate per km (round trip) + base cost
+                const transportCost = Math.round(distance * 2 * transportRate + 200);
+                
+                return Math.min(transportCost, 3000); // Cap at 3000 Kč
+                
+            } catch (error) {
+                console.error('Error calculating transport cost:', error);
+                return 500; // Default on error
+            }
+        }
+
+        // Update transport info display
+        function updateTransportInfo(location, cost) {
+            const infoDiv = document.getElementById('transportInfo');
+            if (location && cost > 500) {
+                const distance = Math.round((cost - 200) / 20); // Approximate distance
+                infoDiv.innerHTML = `📍 ${location}: ~${distance} km od Prahy (${cost} Kč)`;
+            } else {
+                infoDiv.innerHTML = 'Automaticky vypočítáno dle vzdálenosti od Prahy';
+            }
+        }
+
+        // Calculate distance between two coordinates (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // Enhanced base sales calculation using historical data
+        function calculateEnhancedBaseSales(eventType, visitors, duration, location) {
+            // Base conversion rates refined from historical data analysis
+            const conversionRates = {
+                'food festival': 0.18,      // Highest - people come to eat
+                'rodinny festival': 0.15,   // High - families with children
+                'kulturni': 0.12,           // Medium-high - cultural events
+                'ostatni': 0.10,           // Medium - other events
+                'sportovni': 0.08,         // Medium-low - focused on sport
+                'veletrh': 0.06,           // Lower - business focused
+                'koncert': 0.04            // Lowest - entertainment focused
+            };
+            
+            const baseRate = conversionRates[eventType] || 0.08;
+            
+            // Adjust rate based on historical data for this event type
+            const historicalRate = getHistoricalConversionRate(eventType, location);
+            const adjustedRate = historicalRate > 0 ? (baseRate + historicalRate) / 2 : baseRate;
+            
+            // Calculate daily sales
+            const dailySales = visitors * adjustedRate;
+            
+            // Duration factor with diminishing returns
+            let durationFactor;
+            switch(duration) {
+                case 1: durationFactor = 1.0; break;
+                case 2: durationFactor = 1.8; break;
+                case 3: durationFactor = 2.4; break;
+                case 4: durationFactor = 2.8; break;
+                default: durationFactor = 1 + (duration - 1) * 0.6;
+            }
+            
+            return Math.round(dailySales * durationFactor);
+        }
+
+        // Get historical conversion rate for event type
+        function getHistoricalConversionRate(eventType, location) {
+            const relevantEvents = historicalData.filter(event => 
+                event.category && 
+                event.category.toLowerCase().includes(eventType.toLowerCase()) &&
+                event.attendance > 0 && 
+                event.actualSales > 0
+            );
+            
+            if (relevantEvents.length === 0) return 0;
+            
+            const rates = relevantEvents.map(event => event.actualSales / event.attendance);
+            return rates.reduce((sum, rate) => sum + rate, 0) / rates.length;
+        }
+
+        // Enhanced historical adjustment factor
+        function getEnhancedHistoricalAdjustment(eventType, visitors, location) {
+            if (historicalData.length === 0) return 1.0;
+            
+            // Find similar events with weighted criteria
+            const similarEvents = historicalData.filter(event => {
+                let score = 0;
+                
+                // Type match (highest weight)
+                if (event.category && event.category.toLowerCase().includes(eventType.toLowerCase())) {
+                    score += 3;
+                }
+                
+                // Size similarity (medium weight)
+                if (event.attendance > 0) {
+                    const sizeDiff = Math.abs(event.attendance - visitors) / visitors;
+                    if (sizeDiff < 0.3) score += 2;
+                    else if (sizeDiff < 0.6) score += 1;
+                }
+                
+                // Location match (medium weight)
+                if (event.location && event.location.toLowerCase() === location.toLowerCase()) {
+                    score += 2;
+                }
+                
+                return score >= 2; // Minimum similarity threshold
+            });
+            
+            if (similarEvents.length === 0) return 1.0;
+            
+            // Calculate weighted performance ratios
+            const performanceRatios = similarEvents.map(event => {
+                if (event.estimatedSales > 0) {
+                    return event.actualSales / event.estimatedSales;
+                }
+                return 1.0;
+            });
+            
+            const avgRatio = performanceRatios.reduce((a, b) => a + b, 0) / performanceRatios.length;
+            
+            // Apply confidence weighting based on sample size
+            const confidenceWeight = Math.min(1.0, similarEvents.length / 5);
+            const adjustment = 1.0 + (avgRatio - 1.0) * confidenceWeight;
+            
+            // Limit adjustment to reasonable range
+            return Math.max(0.6, Math.min(1.4, adjustment));
+        }
+
+        // Location-specific adjustment factor
+        function getLocationAdjustment(location) {
+            if (!location) return 1.0;
+            
+            // Major cities tend to have higher sales
+            const majorCities = ['praha', 'brno', 'ostrava', 'plzen', 'liberec', 'olomouc', 'ceske budejovice', 'hradec kralove'];
+            const normalizedLocation = location.toLowerCase();
+            
+            if (majorCities.some(city => normalizedLocation.includes(city))) {
+                // Praha gets additional boost
+                if (normalizedLocation.includes('praha')) {
+                    return 1.2; // 20% boost for Prague
+                }
+                return 1.1; // 10% boost for other major cities
+            }
+            
+            return 1.0; // Default for other locations
+        }
+
+        // Enhanced confidence calculation
+        function calculateEnhancedConfidence(eventType, visitors, location) {
+            let confidence = 40; // Lower base confidence
+            
+            // Historical data availability
+            const typeEvents = historicalData.filter(event => 
+                event.category && event.category.toLowerCase().includes(eventType.toLowerCase())
+            );
+            confidence += Math.min(25, typeEvents.length * 3);
+            
+            // Location data availability
+            const locationEvents = historicalData.filter(event => 
+                event.location && event.location.toLowerCase() === location.toLowerCase()
+            );
+            confidence += Math.min(15, locationEvents.length * 2);
+            
+            // Visitor count reliability (typical events have higher confidence)
+            if (visitors >= 1000 && visitors <= 5000) {
+                confidence += 10;
+            } else if (visitors >= 500 && visitors <= 10000) {
+                confidence += 5;
+            }
+            
+            // Weather data availability
+            if (window.currentWeatherData) {
+                confidence += 10;
+            }
+            
+            // Business model reliability
+            const businessModel = document.querySelector('input[name="businessModel"]:checked').value;
+            if (businessModel === 'owner') {
+                confidence += 5; // More control = higher confidence
+            }
+            
+            return Math.min(95, Math.max(20, confidence));
+        }
+// Enhanced financial calculations
+        function calculateEnhancedFinancials(predictedSales) {
+            const donutCost = parseFloat(document.getElementById('donutCost').value) || 15;
+            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 45;
+            const transportCost = parseFloat(document.getElementById('transportCost').value) || 500;
+            const otherCosts = parseFloat(document.getElementById('otherCosts').value) || 0;
+            const businessModel = document.querySelector('input[name="businessModel"]:checked').value;
+            
+            // Revenue
+            const revenue = predictedSales * sellingPrice;
+            
+            // Base costs
+            const donutsCost = predictedSales * donutCost;
+            let totalCosts = donutsCost + transportCost + otherCosts;
+            
+            // Rental costs
+            const rentalModel = document.getElementById('rentalModel').value;
+            let rentalCost = 0;
+            
+            if (rentalModel === 'fixed') {
+                rentalCost = parseFloat(document.getElementById('fixedRental').value) || 0;
+            } else if (rentalModel === 'percentage') {
+                const percentage = parseFloat(document.getElementById('percentageRental').value) || 0;
+                rentalCost = revenue * (percentage / 100);
+            } else { // mixed
+                const fixed = parseFloat(document.getElementById('fixedRental').value) || 0;
+                const percentage = parseFloat(document.getElementById('percentageRental').value) || 0;
+                rentalCost = fixed + (revenue * (percentage / 100));
+            }
+            
+            totalCosts += rentalCost;
+            
+            // Business model specific costs
+            const duration = parseInt(document.getElementById('eventDuration').value);
+            if (businessModel === 'owner') {
+                // Add labor costs for workers (estimate 2 workers * 8 hours * 150 Kč/hour * duration)
+                const laborCost = 2 * 8 * 150 * duration;
+                totalCosts += laborCost;
+            } else if (businessModel === 'franchisee') {
+                // Add franchise fee (typically 5-10% of revenue)
+                const franchiseFee = revenue * 0.07;
+                totalCosts += franchiseFee;
+            }
+            
+            // Calculate profit and margin
+            const profit = revenue - totalCosts;
+            const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+            const breakEvenUnits = sellingPrice > donutCost ? 
+                Math.ceil((totalCosts - donutsCost) / (sellingPrice - donutCost)) : 0;
+            
+            return {
+                revenue: revenue,
+                totalCosts: totalCosts,
+                rentalCost: rentalCost,
+                donutsCost: donutsCost,
+                profit: profit,
+                margin: margin,
+                breakEvenUnits: breakEvenUnits,
+                avgSalePerVisitor: revenue / (parseInt(document.getElementById('expectedVisitors').value) || 1)
+            };
+        }
+
+        // Display enhanced prediction results
+        function displayEnhancedPredictionResults(predictedSales, confidence, financials) {
+            const resultsDiv = document.getElementById('predictionResults');
+            
+            // Determine confidence level
+            let confidenceClass = 'confidence-low';
+            let confidenceText = 'Nízká';
+            if (confidence > 70) {
+                confidenceClass = 'confidence-high';
+                confidenceText = 'Vysoká';
+            } else if (confidence > 40) {
+                confidenceClass = 'confidence-medium';
+                confidenceText = 'Střední';
+            }
+            
+            resultsDiv.innerHTML = `
+                <div class="prediction-summary">
+                    <div class="prediction-metric">
+                        <div class="metric-value">${predictedSales.toLocaleString('cs-CZ')}</div>
+                        <div class="metric-label">Predikce prodeje (ks)</div>
+                    </div>
+                    <div class="prediction-metric">
+                        <div class="metric-value">${Math.round(financials.revenue).toLocaleString('cs-CZ')} Kč</div>
+                        <div class="metric-label">Očekávaný obrat</div>
+                    </div>
+                    <div class="prediction-metric">
+                        <div class="metric-value" style="color: ${financials.profit >= 0 ? '#00b894' : '#e17055'}">
+                            ${Math.round(financials.profit).toLocaleString('cs-CZ')} Kč
+                        </div>
+                        <div class="metric-label">Očekávaný zisk</div>
+                    </div>
+                    <div class="prediction-metric">
+                        <div class="metric-value">${financials.margin.toFixed(1)}%</div>
+                        <div class="metric-label">Zisková marže</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <strong>Spolehlivost predikce: ${confidenceText} (${confidence}%)</strong>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill ${confidenceClass}" style="width: ${confidence}%"></div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; background: rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 6px;">
+                    <h5 style="margin: 0 0 10px 0;">Detailní rozpis nákladů:</h5>
+                    <div style="display: grid; gap: 8px; font-size: 0.95em;">
+                        <div>📦 Náklady na donuty: ${Math.round(financials.donutsCost).toLocaleString('cs-CZ')} Kč</div>
+                        <div>🏪 Nájem místa: ${Math.round(financials.rentalCost).toLocaleString('cs-CZ')} Kč</div>
+                        <div>🚚 Doprava: ${parseInt(document.getElementById('transportCost').value).toLocaleString('cs-CZ')} Kč</div>
+                        <div>💼 Ostatní náklady: ${parseInt(document.getElementById('otherCosts').value).toLocaleString('cs-CZ')} Kč</div>
+                        <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 5px; margin-top: 5px;">
+                            <strong>💰 Celkové náklady: ${Math.round(financials.totalCosts).toLocaleString('cs-CZ')} Kč</strong>
+                        </div>
+                        <div>📊 Break-even bod: ${financials.breakEvenUnits} ks</div>
+                        <div>👥 Průměrný prodej/návštěvník: ${financials.avgSalePerVisitor.toFixed(2)} Kč</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Display enhanced historical data
+        function displayEnhancedHistoricalData(eventType, visitors, location, eventName) {
+            if (historicalData.length === 0) {
+                document.getElementById('historicalData').style.display = 'none';
+                return;
+            }
+            
+            const historicalDiv = document.getElementById('historicalData');
+            const historicalList = document.getElementById('historicalList');
+            
+            // Find similar events with scoring
+            const similarEvents = historicalData
+                .map(event => {
+                    let score = 0;
+                    let reasons = [];
+                    
+                    // Type match
+                    if (event.category && event.category.toLowerCase().includes(eventType.toLowerCase())) {
+                        score += 3;
+                        reasons.push('stejný typ');
+                    }
+                    
+                    // Size similarity
+                    if (event.attendance > 0) {
+                        const sizeDiff = Math.abs(event.attendance - visitors) / visitors;
+                        if (sizeDiff < 0.3) {
+                            score += 2;
+                            reasons.push('podobná velikost');
+                        } else if (sizeDiff < 0.6) {
+                            score += 1;
+                            reasons.push('střední velikost');
+                        }
+                    }
+                    
+                    // Location match
+                    if (event.location && event.location.toLowerCase() === location.toLowerCase()) {
+                        score += 2;
+                        reasons.push('stejná lokalita');
+                    }
+                    
+                    // Name similarity
+                    if (eventName && event.eventName && 
+                        event.eventName.toLowerCase().includes(eventName.toLowerCase().split(' ')[0])) {
+                        score += 1;
+                        reasons.push('podobný název');
+                    }
+                    
+                    return { ...event, similarityScore: score, reasons: reasons };
+                })
+                .filter(event => event.similarityScore >= 1)
+                .sort((a, b) => b.similarityScore - a.similarityScore)
+                .slice(0, 5);
+            
+            if (similarEvents.length > 0) {
+                historicalDiv.style.display = 'block';
+                
+                let html = '';
+                similarEvents.forEach(event => {
+                    const accuracy = event.estimatedSales > 0 ? 
+                        Math.round((event.actualSales / event.estimatedSales) * 100) : 'N/A';
+                    
+                    const eventDate = event.eventDate ? event.eventDate.toLocaleDateString('cs-CZ') : 'N/A';
+                    const reasonsText = event.reasons.join(', ');
+                    
+                    html += `
+                        <div class="historical-event">
+                            <div class="event-header">
+                                ${event.eventName} - ${event.location} 
+                                <span style="font-size: 0.8em; color: rgba(255,255,255,0.7);">(${reasonsText})</span>
+                            </div>
+                            <div class="event-details">
+                                📅 ${eventDate} | 
+                                👥 ${event.attendance.toLocaleString('cs-CZ')} návštěvníků | 
+                                📦 Prodáno: ${event.actualSales} ks | 
+                                🎯 Přesnost: ${accuracy}% |
+                                🌤️ ${event.weather || 'N/A'}
+                                ${event.rating > 0 ? ` | ⭐ ${event.rating}/5` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                historicalList.innerHTML = html;
+            } else {
+                historicalDiv.style.display = 'none';
+            }
+        }
+
+        // Apply manual override
+        function applyManualOverride() {
+            const manualValue = parseInt(document.getElementById('manualPrediction').value);
+            if (isNaN(manualValue) || manualValue < 0) {
+                showMessage('Zadejte platnou hodnotu', 'error');
+                return;
+            }
+            
+            // Recalculate financials with manual prediction
+            const financials = calculateEnhancedFinancials(manualValue);
+            
+            // Update display
+            displayEnhancedPredictionResults(manualValue, 100, financials);
+            
+            // Update stored prediction
+            if (lastPrediction) {
+                lastPrediction.predictedSales = manualValue;
+                lastPrediction.confidence = 100;
+                lastPrediction.financials = financials;
+                lastPrediction.isManualOverride = true;
+            }
+            
+            showMessage('Predikce byla upravena podle vašeho odhadu', 'success');
+        }
+// =============================================================================
+        // WEATHER FUNCTIONS
+        // =============================================================================
+
         async function loadWeather() {
             const location = document.getElementById('eventLocation').value;
             const date = document.getElementById('eventDate').value;
@@ -1046,10 +1932,8 @@
                 // Store weather data for prediction
                 window.currentWeatherData = weatherSummary;
                 
-                // Update prediction if section is visible
-                if (document.getElementById('predictionSection').style.display !== 'none') {
-                    updatePrediction();
-                }
+                // Update prediction if form is filled
+                updatePrediction();
 
             } catch (error) {
                 console.error('Weather error:', error);
@@ -1077,408 +1961,17 @@
             }
         }
 
-        // Environment change handler
-        function handleEnvironmentChange() {
-            const environment = document.getElementById('eventEnvironment').value;
-            const weatherSection = document.getElementById('weatherSection');
-            
-            if (environment === 'indoor') {
-                weatherSection.style.opacity = '0.6';
-                showMessage('Vnitřní akce - počasí má menší vliv na prodej', 'info');
-            } else {
-                weatherSection.style.opacity = '1';
-            }
-            
-            if (document.getElementById('predictionSection').style.display !== 'none') {
-                updatePrediction();
-            }
-        }
+        // =============================================================================
+        // CALENDAR FUNCTIONS
+        // =============================================================================
 
-        // Initialize prediction system
-        function initializePredictionSystem() {
-            // Add event listeners
-            const inputs = [
-                'eventType', 'expectedVisitors', 'eventEnvironment',
-                'donutCost', 'sellingPrice', 'transportCost', 'otherCosts',
-                'fixedRental', 'percentageRental'
-            ];
-            
-            inputs.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.addEventListener('change', updatePrediction);
-                }
-            });
-
-            // Business model radio buttons
-            document.querySelectorAll('input[name="businessModel"]').forEach(radio => {
-                radio.addEventListener('change', updatePrediction);
-            });
-
-            // Show prediction section when basic info is filled
-            const checkBasicInfo = setInterval(() => {
-                const type = document.getElementById('eventType').value;
-                const location = document.getElementById('eventLocation').value;
-                const date = document.getElementById('eventDate').value;
-                
-                if (type && location && date) {
-                    document.getElementById('predictionSection').style.display = 'block';
-                    clearInterval(checkBasicInfo);
-                    updatePrediction();
-                }
-            }, 1000);
-        }
-
-        // Update rental inputs based on model
-        function updateRentalInputs() {
-            const model = document.getElementById('rentalModel').value;
-            const fixedRow = document.getElementById('fixedRentalRow');
-            const percentageRow = document.getElementById('percentageRentalRow');
-            
-            if (model === 'fixed') {
-                fixedRow.style.display = 'flex';
-                percentageRow.style.display = 'none';
-            } else if (model === 'percentage') {
-                fixedRow.style.display = 'none';
-                percentageRow.style.display = 'flex';
-            } else { // mixed
-                fixedRow.style.display = 'flex';
-                percentageRow.style.display = 'flex';
-            }
-            
-            updatePrediction();
-        }
-
-        // Main prediction calculation
-        async function updatePrediction() {
-            const eventType = document.getElementById('eventType').value;
-            const expectedVisitors = parseInt(document.getElementById('expectedVisitors').value) || 0;
-            const environment = document.getElementById('eventEnvironment').value;
-            const duration = parseInt(document.getElementById('eventDuration').value);
-            
-            if (!eventType || !expectedVisitors) {
-                document.getElementById('predictionResults').innerHTML = 
-                    '<div class="prediction-loading">📍 Vyplňte všechny údaje pro načtení predikce</div>';
-                return;
-            }
-
-            // Show loading
-            document.getElementById('predictionResults').innerHTML = 
-                '<div class="prediction-loading">🔄 Počítám predikci...</div>';
-
-            // Calculate base prediction
-            let baseSales = calculateBaseSales(eventType, expectedVisitors, duration);
-            
-            // Apply weather factor
-            let weatherFactor = 1.0;
-            if (window.currentWeatherData && environment === 'outdoor') {
-                const avgTemp = window.currentWeatherData.avgTemp;
-                const totalRain = window.currentWeatherData.totalRain;
-                weatherFactor = calculateWeatherImpact(avgTemp, totalRain).factor;
-            } else if (environment === 'indoor') {
-                weatherFactor = 1.0; // Indoor events are not affected by weather
-            }
-
-            // Apply historical data adjustment
-            const historicalFactor = getHistoricalAdjustment(eventType, expectedVisitors);
-            
-            // Calculate final prediction
-            const predictedSales = Math.round(baseSales * weatherFactor * historicalFactor);
-            const confidence = calculateConfidence(eventType, expectedVisitors);
-            
-            // Financial calculations
-            const financials = calculateFinancials(predictedSales);
-            
-            // Store last prediction
-            lastPrediction = {
-                eventName: document.getElementById('eventName').value,
-                eventType: eventType,
-                location: document.getElementById('eventLocation').value,
-                date: document.getElementById('eventDate').value,
-                duration: duration,
-                expectedVisitors: expectedVisitors,
-                predictedSales: predictedSales,
-                confidence: confidence,
-                financials: financials,
-                weather: window.currentWeatherData
-            };
-
-            // Display results
-            displayPredictionResults(predictedSales, confidence, financials);
-            
-            // Show historical data
-            displayHistoricalData(eventType, expectedVisitors);
-            
-            // Show manual override
-            document.getElementById('manualOverride').style.display = 'block';
-            document.getElementById('manualPrediction').value = predictedSales;
-        }
-
-        // Calculate base sales
-        function calculateBaseSales(eventType, visitors, duration) {
-            // Base conversion rates by event type
-            const conversionRates = {
-                'food festival': 0.15,
-                'veletrh': 0.08,
-                'koncert': 0.06,
-                'sportovni': 0.05,
-                'kulturni': 0.10,
-                'rodinny festival': 0.12,
-                'ostatni': 0.08
-            };
-            
-            const rate = conversionRates[eventType] || 0.08;
-            
-            // Calculate daily sales and multiply by duration
-            const dailySales = visitors * rate;
-            
-            // Apply duration factor (slightly decreasing for longer events)
-            const durationFactor = 1 + (duration - 1) * 0.8;
-            
-            return Math.round(dailySales * durationFactor);
-        }
-
-        // Get historical adjustment factor
-        function getHistoricalAdjustment(eventType, visitors) {
-            if (historicalData.length === 0) return 1.0;
-            
-            // Find similar events
-            const similarEvents = historicalData.filter(event => {
-                const typeMatch = event.category && event.category.toLowerCase().includes(eventType.toLowerCase());
-                const sizeMatch = Math.abs(event.attendance - visitors) / visitors < 0.5;
-                return typeMatch || sizeMatch;
-            });
-            
-            if (similarEvents.length === 0) return 1.0;
-            
-            // Calculate average performance ratio
-            const performanceRatios = similarEvents.map(event => {
-                if (event.estimatedSales > 0) {
-                    return event.actualSales / event.estimatedSales;
-                }
-                return 1.0;
-            });
-            
-            const avgRatio = performanceRatios.reduce((a, b) => a + b, 0) / performanceRatios.length;
-            
-            // Limit adjustment to reasonable range
-            return Math.max(0.7, Math.min(1.3, avgRatio));
-        }
-
-        // Calculate confidence level
-        function calculateConfidence(eventType, visitors) {
-            let confidence = 50; // Base confidence
-            
-            // Add confidence based on historical data
-            const similarEvents = historicalData.filter(event => {
-                return event.category && event.category.toLowerCase().includes(eventType.toLowerCase());
-            });
-            
-            confidence += Math.min(30, similarEvents.length * 5);
-            
-            // Add confidence based on visitor count (more typical events = higher confidence)
-            if (visitors >= 1000 && visitors <= 5000) {
-                confidence += 10;
-            }
-            
-            // Weather data availability
-            if (window.currentWeatherData) {
-                confidence += 10;
-            }
-            
-            return Math.min(95, confidence);
-        }
-// Calculate financials
-        function calculateFinancials(predictedSales) {
-            const donutCost = parseFloat(document.getElementById('donutCost').value) || 15;
-            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 45;
-            const transportCost = parseFloat(document.getElementById('transportCost').value) || 500;
-            const otherCosts = parseFloat(document.getElementById('otherCosts').value) || 200;
-            const businessModel = document.querySelector('input[name="businessModel"]:checked').value;
-            
-            // Revenue
-            const revenue = predictedSales * sellingPrice;
-            
-            // Costs
-            let totalCosts = (predictedSales * donutCost) + transportCost + otherCosts;
-            
-            // Rental costs
-            const rentalModel = document.getElementById('rentalModel').value;
-            let rentalCost = 0;
-            
-            if (rentalModel === 'fixed') {
-                rentalCost = parseFloat(document.getElementById('fixedRental').value) || 0;
-            } else if (rentalModel === 'percentage') {
-                const percentage = parseFloat(document.getElementById('percentageRental').value) || 0;
-                rentalCost = revenue * (percentage / 100);
-            } else { // mixed
-                const fixed = parseFloat(document.getElementById('fixedRental').value) || 0;
-                const percentage = parseFloat(document.getElementById('percentageRental').value) || 0;
-                rentalCost = fixed + (revenue * (percentage / 100));
-            }
-            
-            totalCosts += rentalCost;
-            
-            // Business model specific costs
-            if (businessModel === 'owner') {
-                // Add labor costs for workers (estimate 2 workers * 8 hours * 150 Kč/hour * duration)
-                const duration = parseInt(document.getElementById('eventDuration').value);
-                const laborCost = 2 * 8 * 150 * duration;
-                totalCosts += laborCost;
-            } else if (businessModel === 'franchisee') {
-                // Add franchise fee (typically 5-10% of revenue)
-                const franchiseFee = revenue * 0.07;
-                totalCosts += franchiseFee;
-            }
-            
-            // Calculate profit and margin
-            const profit = revenue - totalCosts;
-            const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
-            const breakEvenUnits = sellingPrice > donutCost ? Math.ceil((totalCosts - (predictedSales * donutCost) + rentalCost) / (sellingPrice - donutCost)) : 0;
-            
-            return {
-                revenue: revenue,
-                totalCosts: totalCosts,
-                rentalCost: rentalCost,
-                profit: profit,
-                margin: margin,
-                breakEvenUnits: breakEvenUnits,
-                avgSalePerVisitor: revenue / (parseInt(document.getElementById('expectedVisitors').value) || 1)
-            };
-        }
-
-        // Display prediction results
-        function displayPredictionResults(predictedSales, confidence, financials) {
-            const resultsDiv = document.getElementById('predictionResults');
-            
-            // Determine confidence level
-            let confidenceClass = 'confidence-low';
-            let confidenceText = 'Nízká';
-            if (confidence > 70) {
-                confidenceClass = 'confidence-high';
-                confidenceText = 'Vysoká';
-            } else if (confidence > 40) {
-                confidenceClass = 'confidence-medium';
-                confidenceText = 'Střední';
-            }
-            
-            resultsDiv.innerHTML = `
-                <div class="prediction-summary">
-                    <div class="prediction-metric">
-                        <div class="metric-value">${predictedSales.toLocaleString('cs-CZ')}</div>
-                        <div class="metric-label">Predikce prodeje (ks)</div>
-                    </div>
-                    <div class="prediction-metric">
-                        <div class="metric-value">${financials.revenue.toLocaleString('cs-CZ')} Kč</div>
-                        <div class="metric-label">Očekávaný obrat</div>
-                    </div>
-                    <div class="prediction-metric">
-                        <div class="metric-value" style="color: ${financials.profit >= 0 ? '#00b894' : '#e17055'}">
-                            ${financials.profit.toLocaleString('cs-CZ')} Kč
-                        </div>
-                        <div class="metric-label">Očekávaný zisk</div>
-                    </div>
-                    <div class="prediction-metric">
-                        <div class="metric-value">${financials.margin.toFixed(1)}%</div>
-                        <div class="metric-label">Zisková marže</div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 20px;">
-                    <strong>Spolehlivost predikce: ${confidenceText}</strong>
-                    <div class="confidence-bar">
-                        <div class="confidence-fill ${confidenceClass}" style="width: ${confidence}%"></div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 20px; background: rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 6px;">
-                    <h5 style="margin: 0 0 10px 0;">Detailní rozpis:</h5>
-                    <div style="display: grid; gap: 8px; font-size: 0.95em;">
-                        <div>📦 Náklady na donuty: ${(predictedSales * parseFloat(document.getElementById('donutCost').value)).toLocaleString('cs-CZ')} Kč</div>
-                        <div>🏪 Nájem místa: ${financials.rentalCost.toLocaleString('cs-CZ')} Kč</div>
-                        <div>🚚 Doprava a ostatní: ${(parseFloat(document.getElementById('transportCost').value) + parseFloat(document.getElementById('otherCosts').value)).toLocaleString('cs-CZ')} Kč</div>
-                        <div>💰 Celkové náklady: ${financials.totalCosts.toLocaleString('cs-CZ')} Kč</div>
-                        <div>📊 Break-even bod: ${financials.breakEvenUnits} ks</div>
-                        <div>👥 Průměrný prodej/návštěvník: ${financials.avgSalePerVisitor.toFixed(2)} Kč</div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Display historical data
-        function displayHistoricalData(eventType, visitors) {
-            if (historicalData.length === 0) return;
-            
-            const historicalDiv = document.getElementById('historicalData');
-            const historicalList = document.getElementById('historicalList');
-            
-            // Find similar events
-            const similarEvents = historicalData
-                .filter(event => {
-                    const typeMatch = event.category && event.category.toLowerCase().includes(eventType.toLowerCase());
-                    const sizeMatch = Math.abs(event.attendance - visitors) / visitors < 0.5;
-                    return typeMatch || sizeMatch;
-                })
-                .slice(0, 5); // Show max 5 events
-            
-            if (similarEvents.length > 0) {
-                historicalDiv.style.display = 'block';
-                
-                let html = '';
-                similarEvents.forEach(event => {
-                    const accuracy = event.estimatedSales > 0 
-                        ? Math.round((event.actualSales / event.estimatedSales) * 100) 
-                        : 0;
-                    
-                    html += `
-                        <div class="historical-event">
-                            <div class="event-header">${event.eventName} - ${event.location}</div>
-                            <div class="event-details">
-                                Návštěvnost: ${event.attendance.toLocaleString('cs-CZ')} | 
-                                Prodáno: ${event.actualSales} ks | 
-                                Přesnost odhadu: ${accuracy}% |
-                                Počasí: ${event.weather}
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                historicalList.innerHTML = html;
-            } else {
-                historicalDiv.style.display = 'none';
-            }
-        }
-
-        // Apply manual override
-        function applyManualOverride() {
-            const manualValue = parseInt(document.getElementById('manualPrediction').value);
-            if (isNaN(manualValue) || manualValue < 0) {
-                showMessage('Zadejte platnou hodnotu', 'error');
-                return;
-            }
-            
-            // Recalculate financials with manual prediction
-            const financials = calculateFinancials(manualValue);
-            
-            // Update display
-            displayPredictionResults(manualValue, 100, financials);
-            
-            // Update stored prediction
-            if (lastPrediction) {
-                lastPrediction.predictedSales = manualValue;
-                lastPrediction.confidence = 100;
-                lastPrediction.financials = financials;
-                lastPrediction.isManualOverride = true;
-            }
-            
-            showMessage('Predikce byla upravena', 'success');
-        }
-
-        // Calendar functions
         function initializeCalendar() {
-            loadSavedEvents();
+            console.log('📅 Initializing calendar...');
             renderCalendar();
             updateMonthYearDisplay();
+            if (calendarView === 'list') {
+                renderEventList();
+            }
         }
 
         function renderCalendar() {
@@ -1488,6 +1981,7 @@
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             
             const calendarGrid = document.getElementById('calendarGrid');
+            
             // Keep header row (first 7 elements)
             const headerCells = Array.from(calendarGrid.children).slice(0, 7);
             calendarGrid.innerHTML = '';
@@ -1556,13 +2050,13 @@
                 
                 // Hover effect
                 dayCell.onmouseover = () => {
-                    if (dayCell.style.border !== '2px solid rgb(33, 150, 243)') {
+                    if (!dayCell.style.border.includes('2196f3')) {
                         dayCell.style.backgroundColor = '#f5f5f5';
                     }
                 };
                 dayCell.onmouseout = () => {
-                    if (dayCell.style.border !== '2px solid rgb(33, 150, 243)') {
-                        dayCell.style.backgroundColor = dayEvents.length > 0 ? 'white' : 'white';
+                    if (!dayCell.style.border.includes('2196f3')) {
+                        dayCell.style.backgroundColor = 'white';
                     }
                 };
                 
@@ -1572,10 +2066,12 @@
 
         function getEventsForDay(year, month, day) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            return savedEvents.filter(event => {
+            const allEvents = [...localSavedEvents, ...plannedEvents];
+            
+            return allEvents.filter(event => {
                 const eventDate = new Date(event.date);
                 const endDate = new Date(eventDate);
-                endDate.setDate(endDate.getDate() + (event.duration - 1));
+                endDate.setDate(endDate.getDate() + ((event.duration || 1) - 1));
                 
                 const checkDate = new Date(dateStr);
                 return checkDate >= eventDate && checkDate <= endDate;
@@ -1616,19 +2112,21 @@
         }
 function renderEventList() {
             const listDiv = document.getElementById('eventList');
+            const allEvents = [...localSavedEvents, ...plannedEvents];
             
-            if (savedEvents.length === 0) {
-                listDiv.innerHTML = '<p style="text-align: center; color: #7f8c8d;">Žádné uložené akce</p>';
+            if (allEvents.length === 0) {
+                listDiv.innerHTML = '<p style="text-align: center; color: #7f8c8d; padding: 40px;">Žádné uložené akce</p>';
                 return;
             }
             
             // Sort events by date
-            const sortedEvents = [...savedEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const sortedEvents = [...allEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
             
             let html = '<div style="display: grid; gap: 15px;">';
             sortedEvents.forEach(event => {
                 const eventDate = new Date(event.date);
                 const isPast = eventDate < new Date();
+                const isSheetEvent = event.source === 'sheet';
                 
                 html += `
                     <div class="event-list-item" style="
@@ -1640,29 +2138,39 @@ function renderEventList() {
                         transition: all 0.3s;
                         opacity: ${isPast ? '0.7' : '1'};
                         border-left: 5px solid ${event.color || '#3498db'};
+                        ${isSheetEvent ? 'border-right: 3px solid #f39c12;' : ''}
                     " onclick="showEventDetails('${event.id}')" 
                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)'"
                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)'">
                         <div style="display: flex; justify-content: space-between; align-items: start;">
                             <div>
-                                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">${event.eventName}</h4>
+                                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">
+                                    ${event.eventName}
+                                    ${isSheetEvent ? '<span style="font-size: 0.7em; background: #f39c12; color: white; padding: 2px 6px; border-radius: 3px; margin-left: 8px;">SHEET</span>' : ''}
+                                </h4>
                                 <div style="color: #7f8c8d; font-size: 0.9em;">
-                                    <div>📅 ${eventDate.toLocaleDateString('cs-CZ')} (${event.duration} ${event.duration === 1 ? 'den' : 'dní'})</div>
+                                    <div>📅 ${eventDate.toLocaleDateString('cs-CZ')} (${event.duration || 1} ${(event.duration || 1) === 1 ? 'den' : 'dní'})</div>
                                     <div>📍 ${event.location}</div>
-                                    <div>🎪 ${event.eventType}</div>
-                                    <div>👥 ${event.expectedVisitors.toLocaleString('cs-CZ')} návštěvníků</div>
+                                    <div>🎪 ${event.eventType || event.category || 'N/A'}</div>
+                                    <div>👥 ${(event.expectedVisitors || event.attendance || 0).toLocaleString('cs-CZ')} návštěvníků</div>
                                 </div>
                             </div>
                             <div style="text-align: right;">
-                                <div style="font-size: 1.5em; font-weight: bold; color: #2c3e50;">
-                                    ${event.predictedSales.toLocaleString('cs-CZ')} ks
-                                </div>
-                                <div style="color: ${event.financials.profit >= 0 ? '#27ae60' : '#e74c3c'}; font-weight: bold;">
-                                    ${event.financials.profit >= 0 ? '+' : ''}${event.financials.profit.toLocaleString('cs-CZ')} Kč
-                                </div>
-                                <div style="font-size: 0.8em; color: #95a5a6; margin-top: 5px;">
-                                    Spolehlivost: ${event.confidence}%
-                                </div>
+                                ${event.predictedSales ? `
+                                    <div style="font-size: 1.5em; font-weight: bold; color: #2c3e50;">
+                                        ${event.predictedSales.toLocaleString('cs-CZ')} ks
+                                    </div>
+                                    <div style="color: ${event.financials && event.financials.profit >= 0 ? '#27ae60' : '#e74c3c'}; font-weight: bold;">
+                                        ${event.financials ? (event.financials.profit >= 0 ? '+' : '') + Math.round(event.financials.profit).toLocaleString('cs-CZ') + ' Kč' : 'N/A'}
+                                    </div>
+                                    <div style="font-size: 0.8em; color: #95a5a6; margin-top: 5px;">
+                                        Spolehlivost: ${event.confidence || 'N/A'}%
+                                    </div>
+                                ` : `
+                                    <div style="font-size: 1.2em; font-weight: bold; color: #7f8c8d;">
+                                        ${event.actualSales ? event.actualSales + ' ks prodáno' : 'Plánovaná akce'}
+                                    </div>
+                                `}
                             </div>
                         </div>
                     </div>
@@ -1679,25 +2187,42 @@ function renderEventList() {
                 return;
             }
             
+            // Validate required fields
+            if (!lastPrediction.eventName || !lastPrediction.location || !lastPrediction.date) {
+                showMessage('Vyplňte název akce, lokalitu a datum', 'error');
+                return;
+            }
+            
             // Generate unique ID
-            const eventId = Date.now().toString();
+            const eventId = generateEventId(lastPrediction.eventName, lastPrediction.date, lastPrediction.location);
+            
+            // Check if event already exists
+            const existingIndex = localSavedEvents.findIndex(e => e.id === eventId);
             
             // Get a color for the event
-            const colorIndex = savedEvents.filter(e => new Date(e.date) >= new Date()).length % futureEventColors.length;
+            const colorIndex = localSavedEvents.filter(e => new Date(e.date) >= new Date()).length % eventColors.length;
             
             // Create event object
             const event = {
                 ...lastPrediction,
                 id: eventId,
                 savedAt: new Date().toISOString(),
-                color: futureEventColors[colorIndex]
+                color: eventColors[colorIndex],
+                source: 'local'
             };
             
-            // Add to saved events
-            savedEvents.push(event);
+            if (existingIndex >= 0) {
+                // Update existing event
+                localSavedEvents[existingIndex] = event;
+                showMessage('Predikce byla aktualizována v kalendáři', 'success');
+            } else {
+                // Add new event
+                localSavedEvents.push(event);
+                showMessage('Predikce byla uložena do kalendáře', 'success');
+            }
             
             // Save to localStorage
-            localStorage.setItem('donulandEvents', JSON.stringify(savedEvents));
+            localStorage.setItem('donulandEvents', JSON.stringify(localSavedEvents));
             
             // Refresh calendar
             if (calendarView === 'month') {
@@ -1706,26 +2231,25 @@ function renderEventList() {
                 renderEventList();
             }
             
-            showMessage('Predikce byla uložena do kalendáře', 'success');
-            
-            // Clear form for new prediction
+            // Clear form for new prediction after short delay
             setTimeout(() => {
-                if (confirm('Chcete vytvořit novou predikci?')) {
+                if (confirm('Chcete vytvořit novou predikci? (současná bude vymazána z formuláře)')) {
                     resetForm();
                 }
-            }, 1000);
-        }
-
-        function loadSavedEvents() {
-            const saved = localStorage.getItem('donulandEvents');
-            if (saved) {
-                savedEvents = JSON.parse(saved);
-            }
+            }, 1500);
         }
 
         function showEventDetails(eventId) {
-            const event = savedEvents.find(e => e.id === eventId);
-            if (!event) return;
+            // Find event in both local and sheet events
+            let event = localSavedEvents.find(e => e.id === eventId);
+            if (!event) {
+                event = plannedEvents.find(e => e.id === eventId);
+            }
+            
+            if (!event) {
+                showMessage('Akce nebyla nalezena', 'error');
+                return;
+            }
             
             selectedEventId = eventId;
             const modal = document.getElementById('eventModal');
@@ -1733,11 +2257,13 @@ function renderEventList() {
             
             const eventDate = new Date(event.date);
             const endDate = new Date(eventDate);
-            endDate.setDate(endDate.getDate() + (event.duration - 1));
+            endDate.setDate(endDate.getDate() + ((event.duration || 1) - 1));
+            
+            const isSheetEvent = event.source === 'sheet';
             
             let weatherHtml = '';
             if (event.weather && event.weather.dayDetails) {
-                weatherHtml = '<h4>Počasí:</h4><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px;">';
+                weatherHtml = '<h4>🌤️ Počasí během akce:</h4><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px;">';
                 event.weather.dayDetails.forEach(day => {
                     weatherHtml += `
                         <div style="background: #f8f9fa; padding: 10px; border-radius: 5px;">
@@ -1752,48 +2278,74 @@ function renderEventList() {
             }
             
             content.innerHTML = `
-                <h2 style="color: #2c3e50; margin-bottom: 20px;">${event.eventName}</h2>
+                <h2 style="color: #2c3e50; margin-bottom: 20px;">
+                    ${event.eventName}
+                    ${isSheetEvent ? '<span style="font-size: 0.6em; background: #f39c12; color: white; padding: 4px 8px; border-radius: 4px; margin-left: 10px;">ZE SHEETU</span>' : ''}
+                </h2>
                 
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 20px;">
                     <div>
-                        <h4>Základní informace:</h4>
+                        <h4>📋 Základní informace:</h4>
                         <div style="line-height: 1.8;">
                             <div>📅 <strong>Datum:</strong> ${eventDate.toLocaleDateString('cs-CZ')} - ${endDate.toLocaleDateString('cs-CZ')}</div>
                             <div>📍 <strong>Místo:</strong> ${event.location}</div>
-                            <div>🎪 <strong>Typ:</strong> ${event.eventType}</div>
-                            <div>👥 <strong>Očekávaná návštěvnost:</strong> ${event.expectedVisitors.toLocaleString('cs-CZ')}</div>
-                            <div>⏱️ <strong>Délka:</strong> ${event.duration} ${event.duration === 1 ? 'den' : 'dní'}</div>
+                            <div>🎪 <strong>Typ:</strong> ${event.eventType || event.category || 'N/A'}</div>
+                            <div>👥 <strong>Návštěvnost:</strong> ${(event.expectedVisitors || event.attendance || 0).toLocaleString('cs-CZ')}</div>
+                            <div>⏱️ <strong>Délka:</strong> ${event.duration || 1} ${(event.duration || 1) === 1 ? 'den' : 'dní'}</div>
+                            ${event.businessModel ? `<div>💼 <strong>Model:</strong> ${event.businessModel}</div>` : ''}
                         </div>
                     </div>
                     
-                    <div>
-                        <h4>Predikce prodeje:</h4>
-                        <div style="line-height: 1.8;">
-                            <div>🍩 <strong>Predikce:</strong> ${event.predictedSales.toLocaleString('cs-CZ')} ks</div>
-                            <div>📊 <strong>Spolehlivost:</strong> ${event.confidence}%</div>
-                            <div>💰 <strong>Očekávaný obrat:</strong> ${event.financials.revenue.toLocaleString('cs-CZ')} Kč</div>
-                            <div style="color: ${event.financials.profit >= 0 ? '#27ae60' : '#e74c3c'}">
-                                💵 <strong>Očekávaný zisk:</strong> ${event.financials.profit.toLocaleString('cs-CZ')} Kč
+                    ${event.predictedSales ? `
+                        <div>
+                            <h4>📊 Predikce prodeje:</h4>
+                            <div style="line-height: 1.8;">
+                                <div>🍩 <strong>Predikce:</strong> ${event.predictedSales.toLocaleString('cs-CZ')} ks</div>
+                                <div>📊 <strong>Spolehlivost:</strong> ${event.confidence || 'N/A'}%</div>
+                                ${event.financials ? `
+                                    <div>💰 <strong>Očekávaný obrat:</strong> ${Math.round(event.financials.revenue).toLocaleString('cs-CZ')} Kč</div>
+                                    <div style="color: ${event.financials.profit >= 0 ? '#27ae60' : '#e74c3c'}">
+                                        💵 <strong>Očekávaný zisk:</strong> ${Math.round(event.financials.profit).toLocaleString('cs-CZ')} Kč
+                                    </div>
+                                    <div>📈 <strong>Marže:</strong> ${event.financials.margin.toFixed(1)}%</div>
+                                ` : ''}
                             </div>
-                            <div>📈 <strong>Marže:</strong> ${event.financials.margin.toFixed(1)}%</div>
                         </div>
-                    </div>
+                    ` : `
+                        <div>
+                            <h4>📈 Historické údaje:</h4>
+                            <div style="line-height: 1.8;">
+                                ${event.actualSales ? `<div>✅ <strong>Skutečný prodej:</strong> ${event.actualSales} ks</div>` : ''}
+                                ${event.estimatedSales ? `<div>🎯 <strong>Odhadovaný prodej:</strong> ${event.estimatedSales} ks</div>` : ''}
+                                ${event.rating ? `<div>⭐ <strong>Hodnocení:</strong> ${event.rating}/5</div>` : ''}
+                                ${event.notes ? `<div>📝 <strong>Poznámky:</strong> ${event.notes}</div>` : ''}
+                            </div>
+                        </div>
+                    `}
                 </div>
                 
                 ${weatherHtml}
                 
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                    <h4>Finanční rozpis:</h4>
-                    <div style="display: grid; gap: 8px;">
-                        <div>📦 Náklady na donuty: ${(event.predictedSales * (event.financials.totalCosts / event.predictedSales * 0.3)).toLocaleString('cs-CZ')} Kč</div>
-                        <div>🏪 Nájem místa: ${event.financials.rentalCost.toLocaleString('cs-CZ')} Kč</div>
-                        <div>🚚 Ostatní náklady: ${(event.financials.totalCosts - event.financials.rentalCost - (event.predictedSales * (event.financials.totalCosts / event.predictedSales * 0.3))).toLocaleString('cs-CZ')} Kč</div>
-                        <div><strong>💸 Celkové náklady: ${event.financials.totalCosts.toLocaleString('cs-CZ')} Kč</strong></div>
+                ${event.financials ? `
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h4>💰 Finanční rozpis:</h4>
+                        <div style="display: grid; gap: 8px;">
+                            <div>📦 Náklady na donuty: ${Math.round(event.financials.donutsCost || 0).toLocaleString('cs-CZ')} Kč</div>
+                            <div>🏪 Nájem místa: ${Math.round(event.financials.rentalCost || 0).toLocaleString('cs-CZ')} Kč</div>
+                            <div>🚚 Doprava: ${event.transportCost || 0} Kč</div>
+                            <div>💼 Ostatní náklady: ${(event.financials.totalCosts || 0) - (event.financials.donutsCost || 0) - (event.financials.rentalCost || 0) - (event.transportCost || 0)} Kč</div>
+                            <div style="border-top: 1px solid #ddd; padding-top: 5px; margin-top: 5px;">
+                                <strong>💸 Celkové náklady: ${Math.round(event.financials.totalCosts || 0).toLocaleString('cs-CZ')} Kč</strong>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                ` : ''}
                 
                 <div style="margin-top: 15px; font-size: 0.9em; color: #7f8c8d;">
-                    <em>Uloženo: ${new Date(event.savedAt).toLocaleString('cs-CZ')}</em>
+                    <em>
+                        ${isSheetEvent ? 'Načteno ze Sheetu' : `Uloženo: ${new Date(event.savedAt).toLocaleString('cs-CZ')}`}
+                        ${event.isManualOverride ? ' | Upraveno ručně' : ''}
+                    </em>
                 </div>
             `;
             
@@ -1808,9 +2360,18 @@ function renderEventList() {
         function deleteEvent() {
             if (!selectedEventId) return;
             
-            if (confirm('Opravdu chcete smazat tuto akci?')) {
-                savedEvents = savedEvents.filter(e => e.id !== selectedEventId);
-                localStorage.setItem('donulandEvents', JSON.stringify(savedEvents));
+            // Find event to check if it's from sheet
+            const event = localSavedEvents.find(e => e.id === selectedEventId) || 
+                         plannedEvents.find(e => e.id === selectedEventId);
+            
+            if (event && event.source === 'sheet') {
+                showMessage('Nelze smazat akci ze Sheetu', 'error');
+                return;
+            }
+            
+            if (confirm('Opravdu chcete smazat tuto akci z kalendáře?')) {
+                localSavedEvents = localSavedEvents.filter(e => e.id !== selectedEventId);
+                localStorage.setItem('donulandEvents', JSON.stringify(localSavedEvents));
                 
                 closeEventModal();
                 
@@ -1820,35 +2381,39 @@ function renderEventList() {
                     renderEventList();
                 }
                 
-                showMessage('Akce byla smazána', 'success');
+                showMessage('Akce byla smazána z kalendáře', 'success');
             }
         }
-
-        function exportCalendar() {
-            if (savedEvents.length === 0) {
+function exportCalendar() {
+            const allEvents = [...localSavedEvents, ...plannedEvents];
+            
+            if (allEvents.length === 0) {
                 showMessage('Žádné akce k exportu', 'error');
                 return;
             }
             
             // Create CSV content
             const headers = [
-                'Název akce', 'Datum', 'Délka (dny)', 'Místo', 'Typ akce',
-                'Očekávaní návštěvníci', 'Predikce prodeje (ks)', 'Spolehlivost (%)',
-                'Očekávaný obrat (Kč)', 'Očekávaný zisk (Kč)', 'Marže (%)'
+                'Název akce', 'Datum', 'Délka (dny)', 'Místo', 'Typ akce', 'Zdroj',
+                'Očekávaní návštěvníci', 'Predikce prodeje (ks)', 'Skutečný prodej (ks)', 'Spolehlivost (%)',
+                'Očekávaný obrat (Kč)', 'Očekávaný zisk (Kč)', 'Marže (%)', 'Hodnocení (1-5)'
             ];
             
-            const rows = savedEvents.map(event => [
-                event.eventName,
-                event.date,
-                event.duration,
-                event.location,
-                event.eventType,
-                event.expectedVisitors,
-                event.predictedSales,
-                event.confidence,
-                Math.round(event.financials.revenue),
-                Math.round(event.financials.profit),
-                event.financials.margin.toFixed(1)
+            const rows = allEvents.map(event => [
+                event.eventName || '',
+                event.date || '',
+                event.duration || 1,
+                event.location || '',
+                event.eventType || event.category || '',
+                event.source === 'sheet' ? 'Google Sheet' : 'Lokální predikce',
+                event.expectedVisitors || event.attendance || 0,
+                event.predictedSales || '',
+                event.actualSales || '',
+                event.confidence || '',
+                event.financials ? Math.round(event.financials.revenue) : '',
+                event.financials ? Math.round(event.financials.profit) : '',
+                event.financials ? event.financials.margin.toFixed(1) : '',
+                event.rating || ''
             ]);
             
             let csv = headers.join(',') + '\n';
@@ -1863,7 +2428,13 @@ function renderEventList() {
             link.download = `donuland_kalendar_${new Date().toISOString().split('T')[0]}.csv`;
             link.click();
             
-            showMessage('Kalendář byl exportován', 'success');
+            showMessage('Kalendář byl exportován do CSV', 'success');
+        }
+
+        async function syncToSheet() {
+            showMessage('Synchronizace se Sheetem zatím není implementována', 'info');
+            // TODO: Implement Google Sheets API integration for writing data
+            // This would require authentication and Google Sheets API setup
         }
 
         function resetForm() {
@@ -1871,7 +2442,7 @@ function renderEventList() {
             document.getElementById('eventName').value = '';
             document.getElementById('eventType').value = '';
             document.getElementById('eventLocation').value = '';
-            document.getElementById('expectedVisitors').value = '';
+            document.getElementById('expectedVisitors').value = '2000';
             
             // Set date to tomorrow
             const tomorrow = new Date();
@@ -1879,44 +2450,446 @@ function renderEventList() {
             document.getElementById('eventDate').value = tomorrow.toISOString().split('T')[0];
             
             // Reset other fields to defaults
-            document.getElementById('eventDuration').value = '1';
+            document.getElementById('eventDuration').value = '2';
             document.getElementById('eventEnvironment').value = 'outdoor';
             
-            // Hide prediction section
-            document.getElementById('predictionSection').style.display = 'none';
+            // Reset financial params to defaults
+            loadSettings(); // This will restore default values
+            
+            // Hide warnings and predictions
+            document.getElementById('eventExistsWarning').style.display = 'none';
+            document.getElementById('predictionResults').innerHTML = 
+                '<div class="prediction-loading">📍 Vyplňte typ akce a návštěvnost pro načtení predikce</div>';
+            document.getElementById('historicalData').style.display = 'none';
+            document.getElementById('manualOverride').style.display = 'none';
+            hidePredictionActions();
             
             // Clear weather
             document.getElementById('weatherDisplay').innerHTML = 
-                '<div class="weather-loading">📍 Vyberte město a datum pro načtení počasí</div>';
+                '<div class="weather-loading">📍 Vyberte město, datum a délku akce pro načtení počasí</div>';
             document.getElementById('weatherDays').innerHTML = '';
             
             // Clear prediction
             lastPrediction = null;
             window.currentWeatherData = null;
             
-            showMessage('Formulář byl vyčištěn', 'info');
+            showMessage('Formulář byl vyčištěn pro novou predikci', 'info');
         }
 
-        // Initialize tooltips (optional enhancement)
-        function initTooltips() {
-            const tooltips = {
-                'eventType': 'Vyberte typ akce pro přesnější predikci',
-                'expectedVisitors': 'Odhadněte celkový počet návštěvníků za všechny dny',
-                'eventEnvironment': 'Vnitřní akce jsou méně ovlivněny počasím',
-                'rentalModel': 'Vyberte způsob placení nájmu',
-                'businessModel': 'Ovlivňuje výpočet dodatečných nákladů'
+        // =============================================================================
+        // SETTINGS MANAGEMENT
+        // =============================================================================
+
+        function saveSettings() {
+            const settings = {
+                defaultDonutPrice: document.getElementById('defaultDonutPrice').value,
+                defaultDonutCost: document.getElementById('defaultDonutCost').value,
+                defaultTransportRate: document.getElementById('defaultTransportRate').value
             };
             
-            Object.entries(tooltips).forEach(([id, text]) => {
+            localStorage.setItem('donulandSettings', JSON.stringify(settings));
+            
+            // Update current form values
+            document.getElementById('sellingPrice').value = settings.defaultDonutPrice;
+            document.getElementById('donutCost').value = settings.defaultDonutCost;
+            
+            showMessage('Nastavení bylo uloženo', 'success');
+            
+            // Recalculate prediction if active
+            if (lastPrediction) {
+                updatePrediction();
+            }
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('donulandSettings');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                
+                // Update settings form
+                document.getElementById('defaultDonutPrice').value = settings.defaultDonutPrice || 45;
+                document.getElementById('defaultDonutCost').value = settings.defaultDonutCost || 15;
+                document.getElementById('defaultTransportRate').value = settings.defaultTransportRate || 10;
+                
+                // Update prediction form
+                document.getElementById('sellingPrice').value = settings.defaultDonutPrice || 45;
+                document.getElementById('donutCost').value = settings.defaultDonutCost || 15;
+            }
+        }
+
+        // =============================================================================
+        // ANALYTICS FUNCTIONS
+        // =============================================================================
+
+        function loadAnalytics() {
+            const analyticsContent = document.getElementById('analyticsContent');
+            
+            if (historicalData.length === 0) {
+                analyticsContent.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #7f8c8d;">
+                        <h4>📊 Analýza prodejních dat</h4>
+                        <p>Zatím nejsou dostupná žádná historická data pro analýzu.</p>
+                        <button class="btn btn-primary" onclick="loadData()">🔄 Načíst data</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Calculate basic analytics
+            const totalEvents = historicalData.length;
+            const totalSales = historicalData.reduce((sum, event) => sum + event.actualSales, 0);
+            const avgSales = totalSales / totalEvents;
+            const bestEvent = historicalData.reduce((best, event) => 
+                event.actualSales > (best?.actualSales || 0) ? event : best, null);
+            
+            // Event type analysis
+            const typeStats = {};
+            historicalData.forEach(event => {
+                const type = event.category || 'Ostatní';
+                if (!typeStats[type]) {
+                    typeStats[type] = { count: 0, totalSales: 0 };
+                }
+                typeStats[type].count++;
+                typeStats[type].totalSales += event.actualSales;
+            });
+            
+            // Location analysis
+            const locationStats = {};
+            historicalData.forEach(event => {
+                const location = event.location || 'Neznámá';
+                if (!locationStats[location]) {
+                    locationStats[location] = { count: 0, totalSales: 0 };
+                }
+                locationStats[location].count++;
+                locationStats[location].totalSales += event.actualSales;
+            });
+            
+            let analyticsHtml = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div style="background: #3498db; color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                        <h3 style="margin: 0; font-size: 2em;">${totalEvents}</h3>
+                        <p style="margin: 5px 0 0 0;">Celkem akcí</p>
+                    </div>
+                    <div style="background: #27ae60; color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                        <h3 style="margin: 0; font-size: 2em;">${totalSales.toLocaleString('cs-CZ')}</h3>
+                        <p style="margin: 5px 0 0 0;">Celkem prodáno (ks)</p>
+                    </div>
+                    <div style="background: #f39c12; color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                        <h3 style="margin: 0; font-size: 2em;">${Math.round(avgSales).toLocaleString('cs-CZ')}</h3>
+                        <p style="margin: 5px 0 0 0;">Průměr na akci (ks)</p>
+                    </div>
+                    <div style="background: #9b59b6; color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                        <h3 style="margin: 0; font-size: 1.5em;">${bestEvent?.actualSales || 0}</h3>
+                        <p style="margin: 5px 0 0 0;">Nejlepší akce (ks)</p>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h4 style="margin: 0 0 15px 0; color: #2c3e50;">📊 Prodej podle typu akce</h4>
+                        <div style="max-height: 300px; overflow-y: auto;">
+            `;
+            
+            Object.entries(typeStats)
+                .sort((a, b) => b[1].totalSales - a[1].totalSales)
+                .forEach(([type, stats]) => {
+                    const avgForType = Math.round(stats.totalSales / stats.count);
+                    analyticsHtml += `
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e9ecef;">
+                            <span><strong>${type}</strong> (${stats.count}x)</span>
+                            <span>${stats.totalSales.toLocaleString('cs-CZ')} ks (ø ${avgForType})</span>
+                        </div>
+                    `;
+                });
+            
+            analyticsHtml += `
+                        </div>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h4 style="margin: 0 0 15px 0; color: #2c3e50;">📍 Prodej podle lokality</h4>
+                        <div style="max-height: 300px; overflow-y: auto;">
+            `;
+            
+            Object.entries(locationStats)
+                .sort((a, b) => b[1].totalSales - a[1].totalSales)
+                .slice(0, 10) // Show top 10 locations
+                .forEach(([location, stats]) => {
+                    const avgForLocation = Math.round(stats.totalSales / stats.count);
+                    analyticsHtml += `
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e9ecef;">
+                            <span><strong>${location}</strong> (${stats.count}x)</span>
+                            <span>${stats.totalSales.toLocaleString('cs-CZ')} ks (ø ${avgForLocation})</span>
+                        </div>
+                    `;
+                });
+            
+            analyticsHtml += `
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="btn btn-primary" onclick="loadData()">🔄 Aktualizovat data</button>
+                    <button class="btn btn-primary" onclick="exportAnalytics()" style="margin-left: 10px;">📤 Export analýzy</button>
+                </div>
+            `;
+            
+            analyticsContent.innerHTML = analyticsHtml;
+        }
+
+        function exportAnalytics() {
+            if (historicalData.length === 0) {
+                showMessage('Žádná data k exportu', 'error');
+                return;
+            }
+            
+            const headers = [
+                'Název akce', 'Datum', 'Lokalita', 'Kategorie', 'Návštěvnost',
+                'Skutečný prodej', 'Odhadovaný prodej', 'Přesnost (%)', 'Hodnocení', 'Počasí'
+            ];
+            
+            const rows = historicalData.map(event => {
+                const accuracy = event.estimatedSales > 0 ? 
+                    Math.round((event.actualSales / event.estimatedSales) * 100) : '';
+                
+                return [
+                    event.eventName || '',
+                    event.eventDate ? event.eventDate.toLocaleDateString('cs-CZ') : '',
+                    event.location || '',
+                    event.category || '',
+                    event.attendance || '',
+                    event.actualSales || '',
+                    event.estimatedSales || '',
+                    accuracy,
+                    event.rating || '',
+                    event.weather || ''
+                ];
+            });
+            
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+            
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `donuland_analyza_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            
+            showMessage('Analýza byla exportována do CSV', 'success');
+        }
+// =============================================================================
+        // UTILITY FUNCTIONS AND ERROR HANDLING
+        // =============================================================================
+
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+            showMessage('Došlo k neočekávané chybě aplikace', 'error');
+        });
+
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Unhandled promise rejection:', e.reason);
+            showMessage('Chyba při komunikaci se serverem', 'error');
+        });
+
+        // Auto-save form data on input (debounced)
+        let autoSaveTimeout;
+        function autoSaveFormData() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                const formData = {
+                    eventType: document.getElementById('eventType').value,
+                    eventName: document.getElementById('eventName').value,
+                    eventLocation: document.getElementById('eventLocation').value,
+                    eventDate: document.getElementById('eventDate').value,
+                    eventDuration: document.getElementById('eventDuration').value,
+                    expectedVisitors: document.getElementById('expectedVisitors').value,
+                    eventEnvironment: document.getElementById('eventEnvironment').value,
+                    businessModel: document.querySelector('input[name="businessModel"]:checked').value,
+                    savedAt: new Date().toISOString()
+                };
+                localStorage.setItem('donulandFormDraft', JSON.stringify(formData));
+            }, 2000);
+        }
+
+        // Load saved form data on page load
+        function loadFormDraft() {
+            const saved = localStorage.getItem('donulandFormDraft');
+            if (saved) {
+                try {
+                    const formData = JSON.parse(saved);
+                    const savedDate = new Date(formData.savedAt);
+                    const hoursSinceLastSave = (new Date() - savedDate) / (1000 * 60 * 60);
+                    
+                    // Only restore if saved within last 24 hours
+                    if (hoursSinceLastSave < 24) {
+                        document.getElementById('eventType').value = formData.eventType || '';
+                        document.getElementById('eventName').value = formData.eventName || '';
+                        document.getElementById('eventLocation').value = formData.eventLocation || '';
+                        document.getElementById('eventDate').value = formData.eventDate || '';
+                        document.getElementById('eventDuration').value = formData.eventDuration || '2';
+                        document.getElementById('expectedVisitors').value = formData.expectedVisitors || '2000';
+                        document.getElementById('eventEnvironment').value = formData.eventEnvironment || 'outdoor';
+                        
+                        if (formData.businessModel) {
+                            const radioButton = document.querySelector(`input[name="businessModel"][value="${formData.businessModel}"]`);
+                            if (radioButton) radioButton.checked = true;
+                        }
+                        
+                        showMessage('Obnoveny rozpracované údaje', 'info');
+                    }
+                } catch (e) {
+                    console.error('Error loading form draft:', e);
+                }
+            }
+        }
+
+        // Setup auto-save listeners
+        function setupAutoSave() {
+            const inputs = ['eventType', 'eventName', 'eventLocation', 'eventDate', 'eventDuration', 'expectedVisitors', 'eventEnvironment'];
+            inputs.forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
-                    element.title = text;
+                    element.addEventListener('input', autoSaveFormData);
+                    element.addEventListener('change', autoSaveFormData);
+                }
+            });
+            
+            document.querySelectorAll('input[name="businessModel"]').forEach(radio => {
+                radio.addEventListener('change', autoSaveFormData);
+            });
+        }
+
+        // Cleanup function
+        function cleanup() {
+            // Clear auto-save timeout
+            if (autoSaveTimeout) {
+                clearTimeout(autoSaveTimeout);
+            }
+            
+            // Clear any intervals
+            // Auto-refresh interval is already handled in loadData setup
+        }
+
+        // Setup cleanup on page unload
+        window.addEventListener('beforeunload', cleanup);
+
+        // Add to initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... existing initialization code ...
+            setupAutoSave();
+            loadFormDraft();
+        });
+
+        // =============================================================================
+        // KEYBOARD SHORTCUTS
+        // =============================================================================
+
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + S to save prediction
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (lastPrediction) {
+                    saveCurrentPrediction();
+                }
+            }
+            
+            // Ctrl/Cmd + R to reset form
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                e.preventDefault();
+                if (confirm('Opravdu chcete vymazat formulář?')) {
+                    resetForm();
+                }
+            }
+            
+            // ESC to close modal
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('eventModal');
+                if (modal && modal.style.display === 'block') {
+                    closeEventModal();
+                }
+            }
+        });
+
+        // =============================================================================
+        // PERFORMANCE MONITORING
+        // =============================================================================
+
+        // Simple performance tracking
+        function trackPerformance(action, startTime) {
+            const endTime = performance.now();
+            const duration = endTime - startTime;
+            console.log(`⏱️ ${action} took ${duration.toFixed(2)}ms`);
+            
+            // Log slow operations
+            if (duration > 1000) {
+                console.warn(`⚠️ Slow operation detected: ${action} (${duration.toFixed(2)}ms)`);
+            }
+        }
+
+        // =============================================================================
+        // ACCESSIBILITY IMPROVEMENTS
+        // =============================================================================
+
+        // Add ARIA labels and improve keyboard navigation
+        function enhanceAccessibility() {
+            // Add skip link for keyboard users
+            const skipLink = document.createElement('a');
+            skipLink.href = '#prediction';
+            skipLink.textContent = 'Přejít na hlavní obsah';
+            skipLink.style.cssText = `
+                position: absolute;
+                top: -40px;
+                left: 6px;
+                background: #000;
+                color: #fff;
+                padding: 8px;
+                text-decoration: none;
+                z-index: 1000;
+                border-radius: 4px;
+            `;
+            skipLink.addEventListener('focus', () => {
+                skipLink.style.top = '6px';
+            });
+            skipLink.addEventListener('blur', () => {
+                skipLink.style.top = '-40px';
+            });
+            document.body.insertBefore(skipLink, document.body.firstChild);
+            
+            // Improve form labels
+            document.querySelectorAll('input, select').forEach(element => {
+                if (!element.getAttribute('aria-describedby') && element.nextElementSibling) {
+                    const describedBy = element.id + '-desc';
+                    element.setAttribute('aria-describedby', describedBy);
                 }
             });
         }
 
-        // Call initialization
-        initTooltips();
+        // Call accessibility enhancements after DOM load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(enhanceAccessibility, 100);
+        });
+
+        // =============================================================================
+        // FINAL INITIALIZATION MESSAGE
+        // =============================================================================
+
+        console.log(`
+        🍩 Donuland Management System v2.0
+        ===================================
+        ✅ Historická data: ${historicalData.length} akcí
+        ✅ Plánované akce: ${plannedEvents.length} akcí  
+        ✅ AI predikce: Aktivní
+        ✅ Počasí: Aktivní
+        ✅ Kalendář: Aktivní
+        ✅ Export: Aktivní
+        
+        Systém je připraven k použití! 🚀
+        `);
+
     </script>
 </body>
 </html>
