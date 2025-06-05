@@ -701,7 +701,8 @@
                     </div>
                 </div>
             </div>
-<!-- Tab: Kalendář -->
+            
+            <!-- Tab: Kalendář -->
             <div id="calendar" class="tab-content">
                 <div class="form-section">
                     <h3>📅 Kalendář plánovaných akcí</h3>
@@ -1129,19 +1130,9 @@
                 radio.addEventListener('change', updatePrediction);
             });
 
-            // Show prediction section when basic info is filled
-            const checkBasicInfo = setInterval(() => {
-                const type = document.getElementById('eventType').value;
-                const location = document.getElementById('eventLocation').value;
-                const date = document.getElementById('eventDate').value;
-                
-                if (type && location && date) {
-                    document.getElementById('predictionSection').style.display = 'block';
-                    clearInterval(checkBasicInfo);
-                    updatePrediction();
-                }
-            }, 1000);
-        }
+         // Show prediction section immediately and update when basic info changes
+            document.getElementById('predictionSection').style.display = 'block';
+                updatePrediction(); // Počítej predikci hned
 
         // Update rental inputs based on model
         function updateRentalInputs() {
